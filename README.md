@@ -48,7 +48,7 @@ $arrFields = array
 		'label'        => &$GLOBALS['TL_LANG']['tl_news']['venues'],
 		'inputType'    => 'fieldpalette',
 		'foreignKey'   => 'tl_fieldpalette.id',
-		'eval'         => array('relation' => 'hasMany', 'load' => 'eager'),
+		'relation'     => array('type' => 'hasMany', 'load' => 'eager'),
 		'sql'          => "blob NULL",
 		'fieldpalette' => array
 		(
