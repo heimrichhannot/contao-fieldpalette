@@ -22,7 +22,7 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = array
 			'keys' => array
 			(
 				'id'                           => 'primary',
-				'pid,ptable,published,sorting' => 'index',
+				'pid,ptable,pfield,published,sorting' => 'index',
 			),
 		),
 		'oncreate_callback' => array
