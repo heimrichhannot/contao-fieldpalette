@@ -158,15 +158,15 @@ class FieldPaletteWizard extends \Widget
 		}
 
 		// Call the label_callback ($row, $label, $this)
-		if (is_array($this->arrDca['list']['list']['label']['label_callback'])) {
-			$strClass  = $this->arrDca['list']['list']['label']['label_callback'][0];
-			$strMethod = $this->arrDca['list']['list']['label']['label_callback'][1];
+		if (is_array($this->arrDca['list']['label']['label_callback'])) {
+			$strClass  = $this->arrDca['list']['label']['label_callback'][0];
+			$strMethod = $this->arrDca['list']['label']['label_callback'][1];
 
 			$this->import($strClass);
 
 			return $this->$strClass->$strMethod($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
-		} elseif (is_callable($this->arrDca['list']['list']['label']['label_callback'])) {
-			return $this->arrDca['list']['list']['label']['label_callback']($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
+		} elseif (is_callable($this->arrDca['list']['label']['label_callback'])) {
+			return $this->arrDca['list']['label']['label_callback']($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
 		} else {
 			return $label;
 		}

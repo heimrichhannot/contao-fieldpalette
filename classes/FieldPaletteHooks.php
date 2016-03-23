@@ -15,6 +15,8 @@ namespace HeimrichHannot\FieldPalette;
 class FieldPaletteHooks extends \Controller
 {
 
+	protected static $arrSkipTables = array('tl_formdata');
+
 	public function executePostActionsHook($strAction, \DataContainer $dc)
 	{
 		if($strAction == FieldPalette::$strFieldpaletteRefreshAction)
@@ -92,9 +94,16 @@ class FieldPaletteHooks extends \Controller
 
 		foreach($arrTables as $strTable)
 		{
+			if(in_array($strTable, static::$arrSkipTables))
+			{
+				continue;
+			}
+
 			\Controller::loadDataContainer($strTable);
 
-			$arrFields = $GLOBALS['TL_DCA'][$strTable]['fields'];
+			$arrDCA = $GLOBALS['TL_DCA'][$strTable];
+
+			$arrFields = $arrDCA['fields'];
 
 			if(!is_array($arrFields)) continue;
 
