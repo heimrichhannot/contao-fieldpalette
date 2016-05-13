@@ -1,8 +1,9 @@
 # FieldPalette
 
-FieldPalette is a contao widget like [MultiColumnWizard] (https://github.com/menatwork/MultiColumnWizard) with its own database table.
+FieldPalette is a contao widget similar to [MultiColumnWizard] (https://github.com/menatwork/MultiColumnWizard).
+Unlike MultiColumnWizard, fields are stored flatly into 'tl_fieldpalette' table and synced with its parent field.
+
 The fieldpalette configuration is based on Contao's [Data Container Arrays](https://docs.contao.org/books/api/dca/index.html).
-Unlike MultiColumnWizard, fields are stored flat into 'tl_fieldpalette' table and synced with its parent field.
 
 ![alt fieldpalette wizard](./docs/img/fieldpalette_wizard.jpg)
 *FieldPalette Wizard - ListView*
@@ -52,6 +53,9 @@ $arrFields = array
 		'sql'          => "blob NULL",
 		'fieldpalette' => array
 		(
+			'config' => array(
+				'hidePublished' => false
+			),
 			'list'     => array
 			(
 				'label' => array

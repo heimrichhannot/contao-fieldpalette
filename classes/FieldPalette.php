@@ -105,8 +105,19 @@ class FieldPalette
 		// replace tl_fieldpalette with custom config
 		$arrData = @array_replace_recursive($arrDefaults, $arrCustom); // supress warning, as long as references may exist in both arrays
 		$arrData['config']['ptable'] = $strTable;
-		$arrData['palettes']['default'] .= ';{published_legend},published'; // always append published
-		
+
+		if ($arrData['config']['hidePublished'])
+		{
+			$arrData['fields']['published']['inputType'] = 'hidden';
+			$arrData['fields']['published']['default'] = true;
+			unset($arrData['list']['operations']['toggle']);
+			$arrData['palettes']['default'] .= ',published';
+		}
+		else
+		{
+			$arrData['palettes']['default'] .= ';{published_legend},published'; // always append published
+		}
+
 		return $arrData;
 	}
 
