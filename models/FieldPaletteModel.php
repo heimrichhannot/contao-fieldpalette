@@ -53,6 +53,9 @@ class FieldPaletteModel extends \Model
 	{
 		$t = static::$strTable;
 
+		if (!is_array($arrIds) || empty($arrIds))
+			return null;
+
 		$arrColumns = array("$t.id IN(" . implode(',', array_map('intval', $arrIds)) . ")");
 
 		if (!BE_USER_LOGGED_IN)
