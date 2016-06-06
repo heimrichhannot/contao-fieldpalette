@@ -59,8 +59,6 @@ class FieldPaletteWizard extends \Widget
 	{
 		$this->reviseTable();
 
-		$this->addCssFiles();
-		
 		$this->objModels = FieldPaletteModel::findByPidAndTableAndField($this->currentRecord, $this->strTable, $this->strName);
 
 		$this->arrButtonDefaults = array
@@ -453,13 +451,6 @@ class FieldPaletteWizard extends \Widget
 		}
 	}
 
-
-	protected function addCssFiles()
-	{
-		if (TL_MODE == 'BE') {
-			$GLOBALS['TL_CSS']['fieldpalette-wizard-be'] = 'system/modules/fieldpalette/assets/css/fieldpalette-wizard-be.css';
-		}
-	}
 }
 
 

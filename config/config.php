@@ -34,4 +34,5 @@ $GLOBALS['TL_MODELS']['tl_fieldpalette'] = 'HeimrichHannot\FieldPalette\FieldPal
 if(TL_MODE == 'BE')
 {
 	$GLOBALS['TL_JAVASCRIPT']['fieldpalette-be.js'] = 'system/modules/fieldpalette/assets/js/fieldpalette-be.js' . (TL_MODE == 'BE' ? '' : '|static');
+	$GLOBALS['TL_CSS']['fieldpalette-wizard-be'] = 'system/modules/fieldpalette/assets/css/fieldpalette-wizard-be.css';
 }
