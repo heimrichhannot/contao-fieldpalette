@@ -17,6 +17,9 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = array
 		'ptable'            => '',
 		'dynamicPtable'     => true,
 		'enableVersioning'  => true,
+		'onload_callback' => array(
+			'setDateAdded' => array('HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true)
+		),
 		'sql'               => array
 		(
 			'keys' => array
@@ -112,6 +115,14 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = array
 		'tstamp'    => array
 		(
 			'sql' => "int(10) unsigned NOT NULL default '0'",
+		),
+		'dateAdded' => array
+		(
+			'label'   => &$GLOBALS['TL_LANG']['MSC']['dateAdded'],
+			'sorting' => true,
+			'flag'    => 6,
+			'eval'    => array('rgxp' => 'datim', 'doNotCopy' => true),
+			'sql'     => "int(10) unsigned NOT NULL default '0'"
 		),
 		'published' => array
 		(
