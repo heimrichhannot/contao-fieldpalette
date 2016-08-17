@@ -13,6 +13,7 @@ namespace HeimrichHannot\FieldPalette;
 
 
 use Contao\DC_Table;
+use HeimrichHannot\Haste\Util\FormSubmission;
 
 class FieldPaletteWizard extends \Widget
 {
@@ -119,29 +120,12 @@ class FieldPaletteWizard extends \Widget
 		$blnProtected = false;
 		$showFields   = $this->arrDca['list']['label']['fields'];
 
+		$dc               = new DC_Table(\Config::get('fieldpalette_table'));
+		$dc->id           = $this->currentRecord;
+		$dc->activeRecord = $objRow;
+
 		foreach ($showFields as $k => $v) {
-			// Decrypt the value
-			if ($this->arrDca['fields'][$v]['eval']['encrypt']) {
-				$objRow->$v = \Encryption::decrypt(deserialize($objRow->$v));
-			}
-
-			if (strpos($v, ':') !== false) {
-				list($strKey, $strTable) = explode(':', $v);
-				list($strTable, $strField) = explode('.', $strTable);
-
-				$objRef = $this->Database->prepare("SELECT " . $strField . " FROM " . $strTable . " WHERE id=?")
-					->limit(1)
-					->execute($objRow->$strKey);
-
-				$args[$k] = $objRef->numRows ? $objRef->$strField : '';
-			} elseif (in_array($this->arrDca['fields'][$v]['flag'], array(5, 6, 7, 8, 9, 10))) {
-				$args[$k] = \Date::parse(\Config::get('datimFormat'), $objRow->$v);
-			} elseif ($this->arrDca['fields'][$v]['inputType'] == 'checkbox' && !$this->arrDca['fields'][$v]['eval']['multiple']) {
-				$args[$k] =
-					($objRow->$v != '') ? (isset($this->arrDca['fields'][$v]['label'][0]) ? $this->arrDca['fields'][$v]['label'][0] : $v) : '';
-			} else {
-				$args[$k] = $this->arrDca['fields'][$v]['reference'][$objRow->$v] ?: $objRow->$v;
-			}
+			$args[$k] = FormSubmission::prepareSpecialValueForPrint($objRow->{$v}, $this->arrDca['fields'][$v], $this->strTable, $dc);
 		}
 
 		$label = vsprintf(((strlen($this->arrDca['list']['label']['format'])) ? $this->arrDca['list']['label']['format'] : '%s'), $args);
