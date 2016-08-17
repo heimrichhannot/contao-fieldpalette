@@ -131,7 +131,7 @@ class FieldPaletteButton
 
 		if (in_array('popup', $arrParameters)) {
 			$strUrl                           = \Haste\Util\Url::addQueryString('popup=1', $strUrl);
-			$this->arrOptions['attributes'][] =
+			$this->arrOptions['attributes']['onclick'] =
 				'onclick="FieldPaletteBackend.openModalIframe({\'action\':\'' . FieldPalette::$strFieldpaletteRefreshAction . '\',\'syncId\':\'' . $this->syncId
 				. '\',\'width\':768,\'title\':\'' . specialchars(sprintf($this->modalTitle, $this->id)) . '\',\'url\':this.href});return false;"';
 
@@ -140,6 +140,9 @@ class FieldPaletteButton
 		$strUrl = \Haste\Util\Url::addQueryString('rt=' . \RequestToken::get(), $strUrl);
 		// TODO: DC_TABLE : 2097 - catch POST and Cookie from saveNClose and do not redirect and just close modal
 		$strUrl = \Haste\Util\Url::addQueryString('nb=1', $strUrl);
+
+		// required by DC_TABLE::getNewPosition() within nested fieldpalettes
+		$strUrl = \Haste\Util\Url::addQueryString('mode=2', $strUrl);
 		
 		return $strUrl;
 	}

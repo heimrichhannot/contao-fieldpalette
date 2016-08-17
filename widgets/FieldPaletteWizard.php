@@ -379,35 +379,37 @@ class FieldPaletteWizard extends \Widget
 			}
 		}
 
-		// Delete all new but incomplete records (tstamp=0)
+		// Delete all new but incomplete fieldpalette records (tstamp=0)
 		if (!empty($new_records[\Config::get('fieldpalette_table')]) && is_array($new_records[\Config::get('fieldpalette_table')])) {
-			$objStmt = $this->Database->execute(
+			$objStmt = $this->Database->prepare(
 				"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE id IN(" . implode(
 					',',
 					array_map(
 						'intval',
 						$new_records[\Config::get('fieldpalette_table')]
 					)
-				) . ") AND tstamp=0"
-			);
+				) . ") AND tstamp=0 AND id != ?"
+			)->execute($this->activeRecord->id);
 
 			if ($objStmt->affectedRows > 0) {
 				$reload = true;
 			}
 		}
 
-		// Delete all records of the current table that are not related to the parent table
+		// Delete all fieldpalette records whose child record isn't existing
 		if ($ptable != '') {
 			if ($this->arrDca['config']['dynamicPtable']) {
 				$objStmt = $this->Database->execute(
-					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE ptable='" . $ptable . "' AND NOT EXISTS (SELECT * FROM " . $ptable
-					. " WHERE " . \Config::get('fieldpalette_table') . ".pid = " . $ptable . ".id)"
+					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE ptable='" . $ptable .
+					"' AND NOT EXISTS (SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " .
+					\Config::get('fieldpalette_table') . ".pid = fpp.id)"
 				);
 			} else {
 				$objStmt = $this->Database->execute(
-					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE NOT EXISTS (SELECT * FROM " . $ptable . " WHERE " . \Config::get(
+					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE NOT EXISTS " .
+					"(SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " . \Config::get(
 						'fieldpalette_table'
-					) . ".pid = " . $ptable . ".id)"
+					) . ".pid = fpp.id)"
 				);
 			}
 
@@ -427,14 +429,13 @@ class FieldPaletteWizard extends \Widget
 
 					if ($GLOBALS['TL_DCA'][$v]['config']['dynamicPtable']) {
 						$objStmt = $this->Database->execute(
-							"DELETE FROM $v WHERE ptable='" . \Config::get('fieldpalette_table') . "' AND NOT EXISTS (SELECT * FROM " . \Config::get(
-								'fieldpalette_table'
-							) . " WHERE $v.pid = " . \Config::get('fieldpalette_table') . ".id)"
+							"DELETE FROM $v WHERE ptable='" . \Config::get('fieldpalette_table') . "' AND NOT EXISTS (SELECT * FROM " .
+							"(SELECT * FROM " . \Config::get('fieldpalette_table') . ") AS fp WHERE $v.pid = fp.id)"
 						);
 					} else {
 						$objStmt = $this->Database->execute(
-							"DELETE FROM $v WHERE NOT EXISTS (SELECT * FROM " . \Config::get('fieldpalette_table') . " WHERE $v.pid = "
-							. \Config::get('fieldpalette_table') . ".id)"
+							"DELETE FROM $v WHERE NOT EXISTS (SELECT * FROM (SELECT * FROM " . \Config::get('fieldpalette_table') .
+							") AS fp WHERE $v.pid = fp.id)"
 						);
 					}
 

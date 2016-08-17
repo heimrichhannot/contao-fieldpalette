@@ -183,6 +183,18 @@ class tl_fieldpalette extends Backend
 			$this->redirect('contao/main.php?act=error');
 		}
 
+		// if are within nested fieldpalettes set parent item tstamp
+		if($arrSet['ptable'] == 'tl_fieldpalette')
+		{
+			$objParent = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($objModel->pid);
+
+			if($objParent !== null)
+			{
+				$objParent->tstamp = time();
+				$objParent->save();
+			}
+		}
+
 		// set fieldpalette field
 		$objModel->pfield = $strFieldPalette;
 		$objModel->save();

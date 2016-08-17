@@ -73,11 +73,6 @@ class FieldPaletteHooks extends \Controller
 	{
 		\Controller::loadDataContainer($strName);
 
-		if($strName !== \Config::get('fieldpalette_table'))
-		{
-			return false;
-		}
-
 		$dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
 
 		$this->registerFieldsetFields($dc, $strName);
