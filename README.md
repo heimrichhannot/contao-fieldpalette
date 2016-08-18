@@ -11,7 +11,9 @@ The fieldpalette configuration is based on Contao's [Data Container Arrays](http
 ![alt fieldpalette edit](./docs/img/fieldpalette_edit.jpg)
 *FieldPalette Wizard - Edit item*
 
-## Technical instruction
+## Technical instructions
+
+### Installation
 
 This example shows the setup of an fieldpalette field within tl_news by using it within an subpalette. That example is available within the module [heimrichhannot/contao-plus] (https://packagist.org/packages/heimrichhannot/contao-news_plus).
 
@@ -147,6 +149,63 @@ $arrFields = array
 );
 
 $dc['fields'] = array_merge($dc['fields'], $arrFields);
+```
+
+### Support recursive copying of fieldpalette records by copying their parent record
+
+Simply add a ```oncopy_callback``` to the dca containing fields of type "fieldpalette":
+
+```
+$GLOBALS['TL_DCA']['tl_*'] = array
+(
+    'config'   => array
+    (
+        // ...
+        'oncopy_callback' => array(
+            array('HeimrichHannot\FieldPalette\FieldPalette', 'copyFieldPaletteRecords')
+        ),
+    )
+)
+```
+
+#### Manipulate fieldpalette records about to be copied on the fly
+
+Sometimes your fieldpalette records contain references to other fieldpalette records. When copying them, reference ids don't match the new (copied) ids anymore.
+You can adjust that by using the copy_callback definable in your field's dca (the field of type "fieldpalette"):
+
+```
+'inputType' => 'fieldpalette',
+'eval'       => array(
+    'fieldpalette' => array(
+        'copy_callback' => array(
+            array('tl_selection_model', 'updateOptionValuesOnCopy')
+        )
+    ),
+    // ...
+)
+    
+```
+
+Example for such a callback:
+
+```
+public static function updateOptionValuesOnCopy($objFieldpalette, $intPid, $intNewId, $strTable, $arrData)
+{
+    $objFilter = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($objFieldpalette->selectionModel_questionData_options_filter);
+
+    if ($objFilter === null)
+        return;
+
+    $objFilterNew = \HeimrichHannot\FieldPalette\FieldPaletteModel::findBy(
+        array('selectionModel_questionData_filters_title=?', 'pid=?'),
+        array($objFilter->selectionModel_questionData_filters_title, $intNewId)
+    );
+
+    if ($objFilterNew !== null)
+    {
+        $objFieldpalette->selectionModel_questionData_options_filter = $objFilterNew->id;
+    }
+}
 ```
 
 ## Features
