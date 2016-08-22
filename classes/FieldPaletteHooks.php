@@ -16,6 +16,8 @@ class FieldPaletteHooks extends \Controller
 {
 
 	protected static $arrSkipTables = array('tl_formdata');
+	protected static $intMaximumDepth = 10;
+	protected static $intCurrentDepth = 0;
 
 	public function executePostActionsHook($strAction, \DataContainer $dc)
 	{
@@ -74,6 +76,11 @@ class FieldPaletteHooks extends \Controller
 		\Controller::loadDataContainer($strName);
 
 		$dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
+
+		if($strName !== \Config::get('fieldpalette_table') && static::$intCurrentDepth++ < static::$intMaximumDepth)
+		{
+			return false;
+		}
 
 		$this->registerFieldsetFields($dc, $strName);
 	}
