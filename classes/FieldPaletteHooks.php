@@ -73,14 +73,14 @@ class FieldPaletteHooks extends \Controller
 	 */
 	public function loadDataContainerHook($strName)
 	{
-		\Controller::loadDataContainer($strName);
-
-		$dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
-
 		if($strName !== \Config::get('fieldpalette_table') && static::$intCurrentDepth++ < static::$intMaximumDepth)
 		{
 			return false;
 		}
+
+		\Controller::loadDataContainer($strName);
+
+		$dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
 
 		$this->registerFieldsetFields($dc, $strName);
 	}
@@ -92,6 +92,12 @@ class FieldPaletteHooks extends \Controller
 			return false;
 		}
 
+		// prevent endless loop
+		if($strName !== \Config::get('fieldpalette_table'))
+		{
+			unset($GLOBALS['TL_HOOKS']['loadDataContainer']['fieldPalette']);
+		}
+
 		$arrTables = \Database::getInstance()->listTables();
 
 		foreach($arrTables as $strTable)
@@ -101,7 +107,10 @@ class FieldPaletteHooks extends \Controller
 				continue;
 			}
 
-			\Controller::loadDataContainer($strTable);
+			if(!$GLOBALS['loadDataContainer'][$strTable])
+			{
+				\Controller::loadDataContainer($strTable);
+			}
 
 			$arrDCA = $GLOBALS['TL_DCA'][$strTable];
 

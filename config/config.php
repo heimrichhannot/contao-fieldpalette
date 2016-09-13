@@ -22,9 +22,9 @@ $GLOBALS['BE_FFL']['fieldpalette'] = 'HeimrichHannot\FieldPalette\FieldPaletteWi
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['loadDataContainer'][] = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'loadDataContainerHook');
-$GLOBALS['TL_HOOKS']['initializeSystem'][]  = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'initializeSystemHook');
-$GLOBALS['TL_HOOKS']['executePostActions'][] = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'executePostActionsHook');
+$GLOBALS['TL_HOOKS']['loadDataContainer']['fieldPalette'] = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'loadDataContainerHook');
+$GLOBALS['TL_HOOKS']['initializeSystem']['fieldPalette']  = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'initializeSystemHook');
+$GLOBALS['TL_HOOKS']['executePostActions']['fieldPalette'] = array('HeimrichHannot\FieldPalette\FieldPaletteHooks', 'executePostActionsHook');
 
 /**
  * Models
