@@ -92,8 +92,8 @@ class FieldPaletteHooks extends \Controller
 			return false;
 		}
 
-		// prevent endless loop
-		if($strName !== \Config::get('fieldpalette_table'))
+		// prevent endless loop within \Controller::loadDataContainer when not in backend database update mode
+		if($strName != \Config::get('fieldpalette_table') && !(TL_MODE == 'BE' && \Input::get('update') == 'database'))
 		{
 			unset($GLOBALS['TL_HOOKS']['loadDataContainer']['fieldPalette']);
 		}
