@@ -43,9 +43,12 @@ ClassLoader::addClasses(array
 TemplateLoader::addFiles(array
 (
 	'fieldpalette_item_default'     => 'system/modules/fieldpalette/templates/fieldpalette',
+	'fieldpalette_item_table'       => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_button_default'   => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_listview_default' => 'system/modules/fieldpalette/templates/fieldpalette',
+	'fieldpalette_wizard_table'     => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_wizard_default'   => 'system/modules/fieldpalette/templates/fieldpalette',
+	'fieldpalette_listview_table'   => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_buttons_default'  => 'system/modules/fieldpalette/templates/fieldpalette',
 	'be_fieldpalette'               => 'system/modules/fieldpalette/templates/backend',
 ));

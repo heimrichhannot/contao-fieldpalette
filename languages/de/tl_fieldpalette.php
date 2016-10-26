@@ -35,3 +35,4 @@ $GLOBALS['TL_LANG']['tl_fieldpalette']['show'] = array('Element anzeigen','Detai
  * Misc
  */
 $GLOBALS['TL_LANG']['tl_fieldpalette']['modalTitle'] = '%s : %s';
+$GLOBALS['TL_LANG']['tl_fieldpalette']['emptyList'] = 'Keine Elemente vorhanden, erstellen Sie bitte ein "Neues Element".';

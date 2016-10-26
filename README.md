@@ -151,6 +151,18 @@ $arrFields = array
 $dc['fields'] = array_merge($dc['fields'], $arrFields);
 ```
 
+### Additional dca reference
+
+All attributes from https://docs.contao.org/books/api/dca/reference.html supported, if they are implemented yet. Additional attributes will be listed here
+
+#### Listing records
+
+##### Sorting
+
+|  Key  | Value  | Description
+|  ---  | ---  | ---
+viewMode | View mode (integer) | **0** Table (default) <br /> **1** List 
+
 ### Support recursive copying of fieldpalette records by copying their parent record
 
 Simply add a ```oncopy_callback``` to the dca containing fields of type "fieldpalette":

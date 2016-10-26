@@ -105,7 +105,7 @@ class FieldPaletteButton
 		$objT->setData($this->arrOptions);
 
 		$objT->href = $this->generateHref();
-		
+
 		$strAttribues = '';
 
 		if (is_array($this->arrOptions['attributes'])) {
@@ -113,7 +113,7 @@ class FieldPaletteButton
 				$strAttribues .= implode(' ', $this->arrOptions['attributes']);
 			}
 		}
-		
+
 		$objT->attributes = strlen($strAttribues) > 0 ? ' ' . $strAttribues : '';
 
 		return $objT->parse();
@@ -124,7 +124,7 @@ class FieldPaletteButton
 		$strUrl = $this->base;
 
 		$arrParameters = $this->prepareParameter($this->act);
-		
+
 		foreach ($arrParameters as $key => $value) {
 			$strUrl = \Haste\Util\Url::addQueryString($key . '=' . $value, $strUrl);
 		}
@@ -143,7 +143,7 @@ class FieldPaletteButton
 
 		// required by DC_TABLE::getNewPosition() within nested fieldpalettes
 		$strUrl = \Haste\Util\Url::addQueryString('mode=2', $strUrl);
-		
+
 		return $strUrl;
 	}
 
@@ -157,24 +157,33 @@ class FieldPaletteButton
 			'pid'                  => $this->pid,
 			'id'                   => $this->id,
 			$this->fieldpaletteKey => $this->fieldpalette,
-			'popup'                => $this->popup,
+			'popup'                => $this->popup
 		);
 
 		$arrAllowed = array_keys($arrParameters);
 
 		switch ($act) {
 			case 'create':
-				$arrAllowed = array('do', 'ptable', 'table', 'act', 'pid', 'fieldpalette', 'popup');
+				$arrAllowed = array('do', 'ptable', 'table', 'act', 'pid', 'fieldpalette', 'popup', 'popupReferer');
+
+                // nested fieldpalettes
+                if($this->ptable == \Config::get('fieldpalette_table') && ($objModel = FieldPaletteModel::findByPk($this->pid)) !== null)
+                {
+                    $arrParameters['table'] = FieldPalette::getParentTable($objModel, $objModel->id);
+                }
 				break;
 			case 'toggle':
 				$arrAllowed          = array('do', 'table', 'state', 'tid', 'id');
 				$arrParameters['id'] = $this->pid;
 				break;
 			case 'edit':
-				$arrAllowed = array('do', 'table', 'act', 'id', 'popup');
+				$arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
 				break;
+            case 'copy':
+                $arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
+                break;
 			case 'show':
-				$arrAllowed = array('do', 'table', 'act', 'id', 'popup');
+				$arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
 				break;
 			case 'delete':
 				$arrAllowed = array('do', 'table', 'act', 'id');
@@ -182,7 +191,7 @@ class FieldPaletteButton
 		}
 
 		$arrParameters = array_intersect_key($arrParameters, array_flip($arrAllowed));
-		
+
 		return $arrParameters;
 	}
 

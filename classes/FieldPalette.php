@@ -52,9 +52,140 @@ class FieldPalette
 	}
 
 
+    public static function loadDynamicPaletteByParentTable($strAct, $strTable, &$dc)
+    {
+        switch ($strAct)
+        {
+            case 'create':
+                $strParentTable = FieldPalette::getParentTableFromRequest();
+                $strPalette     = FieldPalette::getPaletteFromRequest();
+                break;
+            case 'cut':
+            case 'edit':
+            case 'show':
+            case 'delete':
+            case 'toggle':
+                $id = strlen(\Input::get('id')) ? \Input::get('id') : CURRENT_ID;
+
+                $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($id);
+
+                if ($objModel === null)
+                {
+                    break;
+                }
+
+                $strParentTable = FieldPalette::getParentTable($objModel, $objModel->id);
+                $strPalette = $objModel->pfield;
+
+
+                // set back link from request
+                if(\Input::get('popup') && \Input::get('popupReferer'))
+                {
+                    $arrSession = \Session::getInstance()->getData();
+
+                    if(class_exists('\Contao\StringUtil'))
+                    {
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                    }
+                    else {
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \String::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                    }
+
+                    \Session::getInstance()->setData($arrSession);
+                }
+
+                break;
+        }
+
+        if(!$strParentTable || !$strPalette)
+        {
+            return false;
+        }
+
+        if($strTable !== $strParentTable)
+        {
+            \Controller::loadDataContainer($strParentTable);
+        }
+
+        static::registerFieldPalette($dc, $strParentTable, $strTable, $strPalette);
+    }
+
+    public static function registerFieldPalette(&$dc, $strTable, $strLoadedTable, $strPalette = null)
+    {
+        if (!is_array($dc['fields']))
+        {
+            return false;
+        }
+
+        $arrDCA = $GLOBALS['TL_DCA'][$strTable];
+
+        // request nested fieldpalette
+        if($strLoadedTable == \Config::get('fieldpalette_table') && $strTable !== $strLoadedTable)
+        {
+            $arrDCA = $dc;
+        }
+
+        $arrFields = $arrDCA['fields'];
+
+        if (!is_array($arrFields))
+        {
+            return false;
+        }
+
+        if ($strPalette !== null)
+        {
+            if (!isset($arrFields[$strPalette]))
+            {
+                return false;
+            }
+
+            $arrFields = array($strPalette => $arrFields[$strPalette]);
+        }
+
+        $blnFound = static::registerFieldPaletteFields($dc, $strTable, $strLoadedTable, $arrFields);
+
+        if (!$blnFound)
+        {
+            static::refuseFromBackendModuleByTable($strTable);
+        }
+    }
+
+    public static function registerFieldPaletteFields(&$dc, $strTable, $strLoadedTable, $arrFields, $blnFound = false)
+    {
+        foreach ($arrFields as $strField => $arrData)
+        {
+            if (!is_array($arrData['fieldpalette']))
+            {
+                continue;
+            }
+
+
+            // add fields, for contao database update process
+            $dc['fields'] = array_merge($dc['fields'], $arrData['fieldpalette']['fields']);
+
+            // support fieldpalette nesting
+            static::registerFieldPaletteFields($dc, $strTable, $strLoadedTable, $arrData['fieldpalette']['fields'], $blnFound);
+
+            FieldPaletteRegistry::set($strLoadedTable, $strField, $dc);
+
+            // set active ptable
+            if (static::isActive($strLoadedTable, $strField))
+            {
+                \Controller::loadLanguageFile($strLoadedTable); // allow translations within parent fieldpalette table
+                $dc = static::getDca($strLoadedTable, $strField);
+            }
+
+            $blnFound = true;
+        }
+
+        return $blnFound;
+    }
+
 	public static function isActive($strTable, $strField)
 	{
-		if(!in_array($strField, FieldPaletteRegistry::get($strTable)))
+	    $arrRegistry = FieldPaletteRegistry::get($strTable);
+
+		if(!isset($arrRegistry[$strField]))
 		{
 			return false;
 		}
@@ -84,10 +215,32 @@ class FieldPalette
 		return ($strTable == \Input::get(static::$strTableRequestKey) && $strField == \Input::get(static::$strPaletteRequestKey));
 	}
 
+	public static function getParentTableFromRequest()
+    {
+        return \Input::get(static::$strTableRequestKey);
+    }
+
 	public static function getPaletteFromRequest()
 	{
 		return \Input::get(static::$strPaletteRequestKey);
 	}
+
+	public static function getParentTable($objModel, $intId)
+    {
+        if($objModel->ptable == \Config::get('fieldpalette_table'))
+        {
+            $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($objModel->pid);
+
+            if($objModel === null)
+            {
+                throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['fieldPaletteNestedParentTableDoesNotExist'], $intId));
+            }
+
+            return static::getParentTable($objModel, $intId);
+        }
+
+        return $objModel->ptable;
+    }
 
 	public static function getDca($strTable, $strField)
 	{
@@ -138,7 +291,7 @@ class FieldPalette
 				{
 					continue;
 				}
-				
+
 				$GLOBALS['BE_MOD'][$strGroup][$strModule]['tables'][] = \Config::get('fieldpalette_table');
 			}
 		}
@@ -155,7 +308,7 @@ class FieldPalette
 
 			foreach($arrGroup as $strModule => $arrModule)
 			{
-				if(!is_array($arrModule) && !is_array($arrModule['tables']))
+				if(!is_array($arrModule) || !is_array($arrModule['tables']))
 				{
 					continue;
 				}

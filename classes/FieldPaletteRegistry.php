@@ -16,9 +16,9 @@ abstract class FieldPaletteRegistry
 {
 	private static $arrRegistry = array();
 
-	public static function set($strTable, $strField)
+	public static function set($strTable, $strField, $arrDca)
 	{
-		self::$arrRegistry[$strTable][] = $strField;
+		self::$arrRegistry[$strTable][$strField] = $arrDca;
 	}
 
 	public static function get($strTable)

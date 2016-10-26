@@ -17,424 +17,485 @@ use HeimrichHannot\Haste\Util\FormSubmission;
 
 class FieldPaletteWizard extends \Widget
 {
-	/**
-	 * Submit user input
-	 *
-	 * @var boolean
-	 */
-	protected $blnSubmitInput = true;
+    /**
+     * Submit user input
+     *
+     * @var boolean
+     */
+    protected $blnSubmitInput = true;
 
-	/**
-	 * Template
-	 *
-	 * @var string
-	 */
-	protected $strTemplate = 'be_fieldpalette';
+    /**
+     * Template
+     *
+     * @var string
+     */
+    protected $strTemplate = 'be_fieldpalette';
 
-	protected $arrDca = array();
+    protected $arrDca = array();
 
-	protected $objModels;
+    protected $objModels;
 
-	protected $arrButtonDefaults = array();
+    protected $arrButtonDefaults = array();
+
+    protected $viewMode = 0;
+
+    public function __construct($arrAttributes = null)
+    {
+        parent::__construct($arrAttributes);
+
+        \Controller::loadLanguageFile(\Config::get('fieldpalette_table'));
+        \Controller::loadLanguageFile($this->strTable);
+
+        $this->import('Database');
+
+        $this->arrDca   = \HeimrichHannot\FieldPalette\FieldPalette::getDca($this->strTable, $this->strName);
+        $this->viewMode = $this->arrDca['list']['viewMode'] ?: 0;
+    }
 
 
-	public function __construct($arrAttributes = null)
-	{
-		parent::__construct($arrAttributes);
+    /**
+     * Generate the widget and return it as string
+     *
+     * @return string
+     */
+    public function generate()
+    {
+        $this->reviseTable();
 
-		\Controller::loadLanguageFile(\Config::get('fieldpalette_table'));
-		\Controller::loadLanguageFile($this->strTable);
+        $this->objModels = FieldPaletteModel::findByPidAndTableAndField($this->currentRecord, $this->strTable, $this->strName);
 
-		$this->import('Database');
+        $this->arrButtonDefaults = array(
+            'do'              => \Input::get('do'),
+            'ptable'          => $this->strTable,
+            'table'           => \Config::get('fieldpalette_table'),
+            'pid'             => $this->currentRecord,
+            'fieldpalette'    => $this->strName,
+            'fieldpaletteKey' => FieldPalette::$strPaletteRequestKey,
+            'popup'           => true,
+            'syncId'          => 'ctrl_' . $this->strId,
+            'pfield'          => $this->strId,
+        );
 
-		$this->arrDca = \HeimrichHannot\FieldPalette\FieldPalette::getDca($this->strTable, $this->strName);
-	}
+        $objT = new \FrontendTemplate($this->getViewTemplate('fieldpalette_wizard'));
 
+        $objT->buttons  = $this->generateGlobalButtons();
+        $objT->listView = $this->generateListView();
+        $objT->strId    = $this->strId;
 
-	/**
-	 * Generate the widget and return it as string
-	 *
-	 * @return string
-	 */
-	public function generate()
-	{
-		$this->reviseTable();
+        $varValue = array();
 
-		$this->objModels = FieldPaletteModel::findByPidAndTableAndField($this->currentRecord, $this->strTable, $this->strName);
+        if ($this->objModels !== null)
+        {
+            $varValue = $this->objModels->fetchEach('id');
+        }
 
-		$this->arrButtonDefaults = array
-		(
-			'do'              => \Input::get('do'),
-			'ptable'          => $this->strTable,
-			'table'           => \Config::get('fieldpalette_table'),
-			'pid'             => $this->currentRecord,
-			'fieldpalette'    => $this->strName,
-			'fieldpaletteKey' => FieldPalette::$strPaletteRequestKey,
-			'popup'           => true,
-			'syncId'          => 'ctrl_' . $this->strId,
-			'pfield'		  => $this->strId,
-		);
-		
-		$objT = new \FrontendTemplate('fieldpalette_wizard_default');
+        $objT->value   = $varValue;
+        $objT->strName = $this->strName;
 
-		$objT->buttons  = $this->generateGlobalButtons();
-		$objT->listView = $this->generateListView();
-		$objT->strId    = $this->strId;
+        return $objT->parse();
+    }
 
-		$varValue = array();
+    protected function getViewTemplate($strPrefix)
+    {
+        $strSuffix = '';
 
-		if ($this->objModels !== null) {
-			$varValue = $this->objModels->fetchEach('id');
-		}
+        switch ($this->viewMode)
+        {
+            default:
+            case 0:
+                $strSuffix = 'table';
+                break;
+            case 1:
+                $strSuffix = 'default';
+                break;
+        }
 
-		$objT->value   = $varValue;
-		$objT->strName = $this->strName;
+        return $strPrefix . '_' . $strSuffix;
+    }
 
-		return $objT->parse();
-	}
+    protected function generateListView()
+    {
+        $objT            = new \FrontendTemplate($this->getViewTemplate('fieldpalette_listview'));
+        $objT->label     = $this->strLabel;
+        $objT->strId     = $this->strId;
+        $objT->empty     = $GLOBALS['TL_LANG']['tl_fieldpalette']['emptyList'];
+        $objT->sortable  = !$this->arrDca['config']['notSortable'];
+        $objT->labelIcon = '<img src="system/modules/fieldpalette/assets/img/fieldpalette.png" width="16" height="16" alt="">';
 
-	protected function generateListView()
-	{
-		$objT            = new \FrontendTemplate('fieldpalette_listview_default');
-		$objT->label     = $this->strLabel;
-		$objT->strId     = $this->strId;
-		$objT->sortable  = !$this->arrDca['config']['notSortable'];
-		$objT->labelIcon = '<img src="system/modules/fieldpalette/assets/img/fieldpalette.png" width="16" height="16" alt="">';
+        $arrItems = array();
+        $i        = 0;
 
-		$arrItems = array();
-		$i        = 0;
+        if ($this->objModels !== null)
+        {
+            while ($this->objModels->next())
+            {
+                $objModel = $this->objModels->current();
 
-		if ($this->objModels !== null) {
-			while ($this->objModels->next()) {
-				$arrItems[] = $this->generateListItem($this->objModels->current(), $i++);
-			}
-		}
+                if ($objModel->tstamp == 0)
+                {
+                    continue;
+                }
 
-		$objT->items = $arrItems;
+                $arrItems[] = $this->generateListItem($objModel, ++$i);
+            }
+        }
 
-		return $objT->parse();
-	}
+        $objT->items = $arrItems;
 
-	protected function generateItemLabel($objRow, $folderAttribute)
-	{
-		$blnProtected = false;
-		$showFields   = $this->arrDca['list']['label']['fields'];
+        return $objT->parse();
+    }
 
-		$dc               = new DC_Table(\Config::get('fieldpalette_table'));
-		$dc->id           = $this->currentRecord;
-		$dc->activeRecord = $objRow;
+    protected function generateItemLabel($objRow, $folderAttribute)
+    {
+        $blnProtected = false;
+        $showFields   = $this->arrDca['list']['label']['fields'];
 
-		foreach ($showFields as $k => $v) {
-			$args[$k] = FormSubmission::prepareSpecialValueForPrint($objRow->{$v}, $this->arrDca['fields'][$v], $this->strTable, $dc);
-		}
+        $dc               = new DC_Table(\Config::get('fieldpalette_table'));
+        $dc->id           = $this->currentRecord;
+        $dc->activeRecord = $objRow;
 
-		$label = vsprintf(((strlen($this->arrDca['list']['label']['format'])) ? $this->arrDca['list']['label']['format'] : '%s'), $args);
+        foreach ($showFields as $k => $v)
+        {
+            $args[$k] = FormSubmission::prepareSpecialValueForPrint($objRow->{$v}, $this->arrDca['fields'][$v], $this->strTable, $dc);
+        }
 
-		// Shorten the label if it is too long
-		if ($this->arrDca['list']['label']['maxCharacters'] > 0
-			&& $this->arrDca['list']['label']['maxCharacters'] < utf8_strlen(
-				strip_tags($label)
-			)
-		) {
-			$label = trim(\StringUtil::substrHtml($label, $this->arrDca['list']['label']['maxCharacters'])) . ' …';
-		}
+        $label = vsprintf(((strlen($this->arrDca['list']['label']['format'])) ? $this->arrDca['list']['label']['format'] : '%s'), $args);
 
-		// Call the label_callback ($row, $label, $this)
-		if (is_array($this->arrDca['list']['label']['label_callback'])) {
-			$strClass  = $this->arrDca['list']['label']['label_callback'][0];
-			$strMethod = $this->arrDca['list']['label']['label_callback'][1];
+        // Shorten the label if it is too long
+        if ($this->arrDca['list']['label']['maxCharacters'] > 0
+            && $this->arrDca['list']['label']['maxCharacters'] < utf8_strlen(
+                strip_tags($label)
+            )
+        )
+        {
+            $label = trim(\StringUtil::substrHtml($label, $this->arrDca['list']['label']['maxCharacters'])) . ' …';
+        }
 
-			$this->import($strClass);
+        // Call the label_callback ($row, $label, $this)
+        if (is_array($this->arrDca['list']['label']['label_callback']))
+        {
+            $strClass  = $this->arrDca['list']['label']['label_callback'][0];
+            $strMethod = $this->arrDca['list']['label']['label_callback'][1];
 
-			return $this->$strClass->$strMethod($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
-		} elseif (is_callable($this->arrDca['list']['label']['label_callback'])) {
-			return $this->arrDca['list']['label']['label_callback']($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
-		} else {
-			return $label;
-		}
+            $this->import($strClass);
 
-		return $label;
+            return $this->$strClass->$strMethod($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
+        } elseif (is_callable($this->arrDca['list']['label']['label_callback']))
+        {
+            return $this->arrDca['list']['label']['label_callback']($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
+        } else
+        {
+            return $label;
+        }
 
-	}
+        return $label;
 
-	/**
-	 * Compile buttons from the table configuration array and return them as HTML
-	 *
-	 * @param array   $arrRow
-	 * @param string  $strTable
-	 * @param array   $arrRootIds
-	 * @param boolean $blnCircularReference
-	 * @param array   $arrChildRecordIds
-	 * @param string  $strPrevious
-	 * @param string  $strNext
-	 *
-	 * @return string
-	 */
-	protected function generateButtons($objRow, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
-	{
-		if (empty($this->arrDca['list']['operations'])) {
-			return '';
-		}
+    }
 
-		$return = '';
-		
-		$dc               = new DC_Table(\Config::get('fieldpalette_table'));
-		$dc->id           = $this->currentRecord;
-		$dc->activeRecord = $objRow;
-		
-		foreach ($this->arrDca['list']['operations'] as $k => $v) {
-			$v  = is_array($v) ? $v : array($v);
-			$id = specialchars(rawurldecode($objRow->id));
+    /**
+     * Compile buttons from the table configuration array and return them as HTML
+     *
+     * @param array   $arrRow
+     * @param string  $strTable
+     * @param array   $arrRootIds
+     * @param boolean $blnCircularReference
+     * @param array   $arrChildRecordIds
+     * @param string  $strPrevious
+     * @param string  $strNext
+     *
+     * @return string
+     */
+    protected function generateButtons($objRow, $arrRootIds = array(), $blnCircularReference = false, $arrChildRecordIds = null, $strPrevious = null, $strNext = null)
+    {
+        if (empty($this->arrDca['list']['operations']))
+        {
+            return '';
+        }
 
-			$label      = $v['label'][0] ?: $k;
-			$title      = sprintf($v['label'][1] ?: $k, $id);
-			$attributes = ($v['attributes'] != '') ? ltrim(sprintf($v['attributes'], $id, $id)) : '';
+        $return = '';
 
-			$objButton = FieldPaletteButton::getInstance();
-			$objButton->addOptions($this->arrButtonDefaults);
-			$objButton->setType($k);
-			$objButton->setId($objRow->id);
-			$objButton->setModalTitle(
-				sprintf(
-					$GLOBALS['TL_LANG']['tl_fieldpalette']['modalTitle'],
-					$GLOBALS['TL_LANG'][$this->strTable][$this->strName][0] ?: $this->strName,
-					sprintf($title, $objRow->id)
-				)
-			);
-			$objButton->setAttributes(array($attributes));
-			$objButton->setLabel(\Image::getHtml($v['icon'], $label));
-			$objButton->setTitle(specialchars($title));
-			
-			// Call a custom function instead of using the default button
-			if (is_array($v['button_callback'])) {
-				$this->import($v['button_callback'][0]);
-				$return .= $this->{$v['button_callback'][0]}->{$v['button_callback'][1]}(
-					$objRow->row(),
-					$objButton->getHref(),
-					$label,
-					$title,
-					$v['icon'],
-					$attributes,
-					\Config::get('fieldpalette_table'),
-					$arrRootIds,
-					$arrChildRecordIds,
-					$blnCircularReference,
-					$strPrevious,
-					$strNext,
-					$dc
-				);
-				continue;
-			} elseif (is_callable($v['button_callback'])) {
-				$return .= $v['button_callback'](
-					$objRow->row(),
-					$objButton->getHref(),
-					$label,
-					$title,
-					$v['icon'],
-					$attributes,
-					\Config::get('fieldpalette_table'),
-					$arrRootIds,
-					$arrChildRecordIds,
-					$blnCircularReference,
-					$strPrevious,
-					$strNext,
-					$dc
-				);
-				continue;
-			}
+        $dc               = new DC_Table(\Config::get('fieldpalette_table'));
+        $dc->id           = $this->currentRecord;
+        $dc->activeRecord = $objRow;
 
-			// Generate all buttons except "move up" and "move down" buttons
-			if ($k != 'move' && $v != 'move') {
-				$return .= $objButton->generate();
-				continue;
-			}
+        foreach ($this->arrDca['list']['operations'] as $k => $v)
+        {
+            $v  = is_array($v) ? $v : array($v);
+            $id = specialchars(rawurldecode($objRow->id));
 
-			$arrDirections = array('up', 'down');
-			$arrRootIds    = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
+            $label      = $v['label'][0] ?: $k;
+            $title      = sprintf($v['label'][1] ?: $k, $id);
+            $attributes = ($v['attributes'] != '') ? ltrim(sprintf($v['attributes'], $id, $id)) : '';
 
-			foreach ($arrDirections as $dir) {
-				$label = $GLOBALS['TL_LANG'][\Config::get('fieldpalette_table')][$dir][0] ?: $dir;
-				$title = $GLOBALS['TL_LANG'][\Config::get('fieldpalette_table')][$dir][1] ?: $dir;
+            $objButton = FieldPaletteButton::getInstance();
+            $objButton->addOptions($this->arrButtonDefaults);
+            $objButton->setType($k);
+            $objButton->setId($objRow->id);
+            $objButton->setModalTitle(
+                sprintf(
+                    $GLOBALS['TL_LANG']['tl_fieldpalette']['modalTitle'],
+                    $GLOBALS['TL_LANG'][$this->strTable][$this->strName][0] ?: $this->strName,
+                    sprintf($title, $objRow->id)
+                )
+            );
+            $objButton->setAttributes(array($attributes));
+            $objButton->setLabel(\Image::getHtml($v['icon'], $label));
+            $objButton->setTitle(specialchars($title));
 
-				$label = \Image::getHtml($dir . '.gif', $label);
-				$href  = $v['href'] ?: '&amp;act=move';
+            // Call a custom function instead of using the default button
+            if (is_array($v['button_callback']))
+            {
+                $this->import($v['button_callback'][0]);
+                $return .= $this->{$v['button_callback'][0]}->{$v['button_callback'][1]}(
+                    $objRow->row(),
+                    $objButton->getHref(),
+                    $label,
+                    $title,
+                    $v['icon'],
+                    $attributes,
+                    \Config::get('fieldpalette_table'),
+                    $arrRootIds,
+                    $arrChildRecordIds,
+                    $blnCircularReference,
+                    $strPrevious,
+                    $strNext,
+                    $dc
+                );
+                continue;
+            } elseif (is_callable($v['button_callback']))
+            {
+                $return .= $v['button_callback'](
+                    $objRow->row(),
+                    $objButton->getHref(),
+                    $label,
+                    $title,
+                    $v['icon'],
+                    $attributes,
+                    \Config::get('fieldpalette_table'),
+                    $arrRootIds,
+                    $arrChildRecordIds,
+                    $blnCircularReference,
+                    $strPrevious,
+                    $strNext,
+                    $dc
+                );
+                continue;
+            }
 
-				if ($dir == 'up') {
-					$return .= ((is_numeric($strPrevious)
-								 && (!in_array($objRow->id, $arrRootIds)
-									 || empty($this->arrDca['list']['sorting']['root'])))
-							? '<a href="' . $this->addToUrl(
-								$href . '&amp;id=' . $objRow->id
-							) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> '
-							: \Image::getHtml(
-								'up_.gif'
-							)) . ' ';
-					continue;
-				}
+            // Generate all buttons except "move up" and "move down" buttons
+            if ($k != 'move' && $v != 'move')
+            {
+                $return .= $objButton->generate();
+                continue;
+            }
 
-				$return .= ((is_numeric($strNext)
-							 && (!in_array($objRow->id, $arrRootIds)
-								 || empty($this->arrDca['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl(
-							$href . '&amp;id=' . $objRow->id
-						) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label
-																						. '</a> ' : \Image::getHtml('down_.gif')) . ' ';
-			}
+            $arrDirections = array('up', 'down');
+            $arrRootIds    = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
 
-		}
+            foreach ($arrDirections as $dir)
+            {
+                $label = $GLOBALS['TL_LANG'][\Config::get('fieldpalette_table')][$dir][0] ?: $dir;
+                $title = $GLOBALS['TL_LANG'][\Config::get('fieldpalette_table')][$dir][1] ?: $dir;
 
-		// Sort elements
-		if (!$this->arrDca['config']['notSortable']) {
-			$href = 'contao/main.php';
-			$href .= '?do=' . \Input::get('do');
-			$href .= '&amp;table=' . \Config::get('fieldpalette_table');
-			$href .= '&amp;id=' . $objRow->id;
-			$href .= '&amp;' . FieldPalette::$strTableRequestKey . '=' . $this->strTable;
-			$href .= '&amp;' . FieldPalette::$strPaletteRequestKey . '=' . $this->strName;
-			$href .= '&amp;rt=' . \RequestToken::get();
+                $label = \Image::getHtml($dir . '.gif', $label);
+                $href  = $v['href'] ?: '&amp;act=move';
 
-			$return .= ' ' . \Image::getHtml(
-					'drag.gif',
-					'',
-					'class="drag-handle" title="' . sprintf($GLOBALS['TL_LANG'][$this->strTable]['cut'][1], $objRow->id) . '" data-href="' . $href
-					. '" data-id="' . $objRow->id . '" data-pid="' . $objRow->pid . '"'
-				);
-		}
-		
-		return trim($return);
-	}
+                if ($dir == 'up')
+                {
+                    $return .= ((is_numeric($strPrevious)
+                                 && (!in_array($objRow->id, $arrRootIds)
+                                     || empty($this->arrDca['list']['sorting']['root'])))
+                            ? '<a href="' . $this->addToUrl(
+                                $href . '&amp;id=' . $objRow->id
+                            ) . '&amp;sid=' . intval($strPrevious) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> '
+                            : \Image::getHtml(
+                                'up_.gif'
+                            )) . ' ';
+                    continue;
+                }
 
-	protected function generateListItem($objRow, $intCount)
-	{
-		$objT = new \FrontendTemplate('fieldpalette_item_default');
-		$objT->setData($objRow->row());
+                $return .= ((is_numeric($strNext)
+                             && (!in_array($objRow->id, $arrRootIds)
+                                 || empty($this->arrDca['list']['sorting']['root']))) ? '<a href="' . $this->addToUrl(
+                            $href . '&amp;id=' . $objRow->id
+                        ) . '&amp;sid=' . intval($strNext) . '" title="' . specialchars($title) . '"' . $attributes . '>' . $label . '</a> ' : \Image::getHtml('down_.gif')) . ' ';
+            }
 
-		$objT->folderAttribute = '';
-		$objT->label           = $this->generateItemLabel($objRow, $objT->folderAttribute);
-		$objT->buttons         = $this->generateButtons($objRow);
-		$objT->strId           = sprintf('%s_%s_%s', $objRow->ptable, $objRow->pfield, $objRow->id);
+        }
 
-		return $objT->parse();
-	}
+        // Sort elements
+        if (!$this->arrDca['config']['notSortable'])
+        {
+            $href = 'contao/main.php';
+            $href .= '?do=' . \Input::get('do');
+            $href .= '&amp;table=' . \Config::get('fieldpalette_table');
+            $href .= '&amp;id=' . $objRow->id;
+            $href .= '&amp;' . FieldPalette::$strTableRequestKey . '=' . $this->strTable;
+            $href .= '&amp;' . FieldPalette::$strPaletteRequestKey . '=' . $this->strName;
+            $href .= '&amp;rt=' . \RequestToken::get();
 
-	protected function generateGlobalButtons()
-	{
-		$objCreateButton = FieldPaletteButton::getInstance();
-		$objCreateButton->addOptions($this->arrButtonDefaults);
-		$objCreateButton->setType('create');
-		$objCreateButton->setModalTitle(
-			sprintf(
-				$GLOBALS['TL_LANG']['tl_fieldpalette']['modalTitle'],
-				$GLOBALS['TL_LANG'][$this->strTable][$this->strName][0] ?: $this->strName,
-				$GLOBALS['TL_LANG']['tl_fieldpalette']['new'][1]
-			)
-		);
-		$objCreateButton->setLabel($GLOBALS['TL_LANG']['tl_fieldpalette']['new'][0]);
-		$objCreateButton->setTitle($GLOBALS['TL_LANG']['tl_fieldpalette']['new'][0]);
+            $return .= ' ' . \Image::getHtml(
+                    'drag.gif',
+                    '',
+                    'class="drag-handle" title="' . sprintf($GLOBALS['TL_LANG'][$this->strTable]['cut'][1], $objRow->id) . '" data-href="' . $href . '" data-id="' . $objRow->id . '" data-pid="' . $objRow->pid . '"'
+                );
+        }
 
-		return $objCreateButton->generate();
-	}
+        return trim($return);
+    }
 
-	/**
-	 * Delete all incomplete and unrelated records
-	 */
-	protected function reviseTable()
-	{
-		$reload = false;
-		$ptable = $this->arrDca['config']['ptable'];
-		$ctable = $this->arrDca['config']['ctable'];
+    protected function generateListItem($objRow, $rowIndex)
+    {
+        $objT = new \FrontendTemplate($this->getViewTemplate('fieldpalette_item'));
+        $objT->setData($objRow->row());
 
-		$new_records = $this->Session->get('new_records');
-		
-		// HOOK: add custom logic
-		if (isset($GLOBALS['TL_HOOKS']['reviseTable']) && is_array($GLOBALS['TL_HOOKS']['reviseTable'])) {
-			foreach ($GLOBALS['TL_HOOKS']['reviseTable'] as $callback) {
-				$status = null;
+        $objT->folderAttribute = '';
+        $objT->label           = $this->generateItemLabel($objRow, $objT->folderAttribute);
+        $objT->buttons         = $this->generateButtons($objRow);
+        $objT->strId           = sprintf('%s_%s_%s', $objRow->ptable, $objRow->pfield, $objRow->id);
+        $objT->rowIndex        = $rowIndex;
 
-				if (is_array($callback)) {
-					$this->import($callback[0]);
-					$status = $this->{$callback[0]}->{$callback[1]}($this->strTable, $new_records[$this->strTable], $ptable, $ctable);
-				} elseif (is_callable($callback)) {
-					$status = $callback($this->strTable, $new_records[$this->strTable], $ptable, $ctable);
-				}
+        return $objT->parse();
+    }
 
-				if ($status === true) {
-					$reload = true;
-				}
-			}
-		}
+    protected function generateGlobalButtons()
+    {
+        $objCreateButton = FieldPaletteButton::getInstance();
+        $objCreateButton->addOptions($this->arrButtonDefaults);
+        $objCreateButton->setType('create');
+        $objCreateButton->setModalTitle(
+            sprintf(
+                $GLOBALS['TL_LANG']['tl_fieldpalette']['modalTitle'],
+                $GLOBALS['TL_LANG'][$this->strTable][$this->strName][0] ?: $this->strName,
+                $GLOBALS['TL_LANG']['tl_fieldpalette']['new'][1]
+            )
+        );
+        $objCreateButton->setLabel($GLOBALS['TL_LANG']['tl_fieldpalette']['new'][0]);
+        $objCreateButton->setTitle($GLOBALS['TL_LANG']['tl_fieldpalette']['new'][0]);
 
-		// Delete all new but incomplete fieldpalette records (tstamp=0)
-		if (!empty($new_records[\Config::get('fieldpalette_table')]) && is_array($new_records[\Config::get('fieldpalette_table')])) {
-			$objStmt = $this->Database->prepare(
-				"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE id IN(" . implode(
-					',',
-					array_map(
-						'intval',
-						$new_records[\Config::get('fieldpalette_table')]
-					)
-				) . ") AND tstamp=0 AND id != ?"
-			)->execute($this->activeRecord->id);
+        return $objCreateButton->generate();
+    }
 
-			if ($objStmt->affectedRows > 0) {
-				$reload = true;
-			}
-		}
+    /**
+     * Delete all incomplete and unrelated records
+     */
+    protected function reviseTable()
+    {
+        $reload = false;
+        $ptable = $this->arrDca['config']['ptable'];
+        $ctable = $this->arrDca['config']['ctable'];
 
-		// Delete all fieldpalette records whose child record isn't existing
-		if ($ptable != '') {
-			if ($this->arrDca['config']['dynamicPtable']) {
-				$objStmt = $this->Database->execute(
-					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE ptable='" . $ptable .
-					"' AND NOT EXISTS (SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " .
-					\Config::get('fieldpalette_table') . ".pid = fpp.id)"
-				);
-			} else {
-				$objStmt = $this->Database->execute(
-					"DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE NOT EXISTS " .
-					"(SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " . \Config::get(
-						'fieldpalette_table'
-					) . ".pid = fpp.id)"
-				);
-			}
+        $new_records = $this->Session->get('new_records');
 
-			if ($objStmt->affectedRows > 0) {
-				$reload = true;
-			}
-		}
+        // HOOK: add custom logic
+        if (isset($GLOBALS['TL_HOOKS']['reviseTable']) && is_array($GLOBALS['TL_HOOKS']['reviseTable']))
+        {
+            foreach ($GLOBALS['TL_HOOKS']['reviseTable'] as $callback)
+            {
+                $status = null;
 
-		// Delete all records of the child table that are not related to the current table
-		if (!empty($ctable) && is_array($ctable)) {
-			foreach ($ctable as $v) {
-				if ($v != '') {
-					// Load the DCA configuration so we can check for "dynamicPtable"
-					if (!isset($GLOBALS['loadDataContainer'][$v])) {
-						\Controller::loadDataContainer($v);
-					}
+                if (is_array($callback))
+                {
+                    $this->import($callback[0]);
+                    $status = $this->{$callback[0]}->{$callback[1]}($this->strTable, $new_records[$this->strTable], $ptable, $ctable);
+                } elseif (is_callable($callback))
+                {
+                    $status = $callback($this->strTable, $new_records[$this->strTable], $ptable, $ctable);
+                }
 
-					if ($GLOBALS['TL_DCA'][$v]['config']['dynamicPtable']) {
-						$objStmt = $this->Database->execute(
-							"DELETE FROM $v WHERE ptable='" . \Config::get('fieldpalette_table') . "' AND NOT EXISTS (SELECT * FROM " .
-							"(SELECT * FROM " . \Config::get('fieldpalette_table') . ") AS fp WHERE $v.pid = fp.id)"
-						);
-					} else {
-						$objStmt = $this->Database->execute(
-							"DELETE FROM $v WHERE NOT EXISTS (SELECT * FROM (SELECT * FROM " . \Config::get('fieldpalette_table') .
-							") AS fp WHERE $v.pid = fp.id)"
-						);
-					}
+                if ($status === true)
+                {
+                    $reload = true;
+                }
+            }
+        }
 
-					if ($objStmt->affectedRows > 0) {
-						$reload = true;
-					}
-				}
-			}
-		}
+        // Delete all new but incomplete fieldpalette records (tstamp=0)
+        if (!empty($new_records[\Config::get('fieldpalette_table')]) && is_array($new_records[\Config::get('fieldpalette_table')]))
+        {
+            $objStmt = $this->Database->prepare(
+                "DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE id IN(" . implode(
+                    ',',
+                    array_map(
+                        'intval',
+                        $new_records[\Config::get('fieldpalette_table')]
+                    )
+                ) . ") AND tstamp=0 AND (? IS NULL OR id != ?)"
+            )->execute($this->activeRecord->id, $this->activeRecord->id);
 
-		// Reload the page
-		if ($reload) {
-			\Controller::reload();
-		}
-	}
+            if ($objStmt->affectedRows > 0)
+            {
+                $reload = true;
+            }
+        }
+
+        // Delete all fieldpalette records whose child record isn't existing
+        if ($ptable != '')
+        {
+            if ($this->arrDca['config']['dynamicPtable'])
+            {
+                $objStmt = $this->Database->execute(
+                    "DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE ptable='" . $ptable . "' AND NOT EXISTS (SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " . \Config::get('fieldpalette_table') . ".pid = fpp.id)"
+                );
+            } else
+            {
+                $objStmt = $this->Database->execute(
+                    "DELETE FROM " . \Config::get('fieldpalette_table') . " WHERE NOT EXISTS " . "(SELECT * FROM (SELECT * FROM " . $ptable . ") AS fpp WHERE " . \Config::get(
+                        'fieldpalette_table'
+                    ) . ".pid = fpp.id)"
+                );
+            }
+
+            if ($objStmt->affectedRows > 0)
+            {
+                $reload = true;
+            }
+        }
+
+        // Delete all records of the child table that are not related to the current table
+        if (!empty($ctable) && is_array($ctable))
+        {
+            foreach ($ctable as $v)
+            {
+                if ($v != '')
+                {
+                    // Load the DCA configuration so we can check for "dynamicPtable"
+                    if (!isset($GLOBALS['loadDataContainer'][$v]))
+                    {
+                        \Controller::loadDataContainer($v);
+                    }
+
+                    if ($GLOBALS['TL_DCA'][$v]['config']['dynamicPtable'])
+                    {
+                        $objStmt = $this->Database->execute(
+                            "DELETE FROM $v WHERE ptable='" . \Config::get('fieldpalette_table') . "' AND NOT EXISTS (SELECT * FROM " . "(SELECT * FROM " . \Config::get('fieldpalette_table') . ") AS fp WHERE $v.pid = fp.id)"
+                        );
+                    } else
+                    {
+                        $objStmt = $this->Database->execute(
+                            "DELETE FROM $v WHERE NOT EXISTS (SELECT * FROM (SELECT * FROM " . \Config::get('fieldpalette_table') . ") AS fp WHERE $v.pid = fp.id)"
+                        );
+                    }
+
+                    if ($objStmt->affectedRows > 0)
+                    {
+                        $reload = true;
+                    }
+                }
+            }
+        }
+
+        // Reload the page
+        if ($reload)
+        {
+            if (\Environment::get('isAjaxRequest'))
+            {
+                return;
+            }
+
+            \Controller::reload();
+        }
+    }
 
 }
 
