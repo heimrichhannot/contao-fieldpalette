@@ -24,16 +24,17 @@ ClassLoader::addNamespaces(array
 ClassLoader::addClasses(array
 (
 	// Models
-	'HeimrichHannot\FieldPalette\FieldPaletteModel'    => 'system/modules/fieldpalette/models/FieldPaletteModel.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteModel'        => 'system/modules/fieldpalette/models/FieldPaletteModel.php',
 
 	// Widgets
-	'HeimrichHannot\FieldPalette\FieldPaletteWizard'   => 'system/modules/fieldpalette/widgets/FieldPaletteWizard.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteWizard'       => 'system/modules/fieldpalette/widgets/FieldPaletteWizard.php',
 
 	// Classes
-	'HeimrichHannot\FieldPalette\FieldPalette'         => 'system/modules/fieldpalette/classes/FieldPalette.php',
-	'HeimrichHannot\FieldPalette\FieldPaletteHooks'    => 'system/modules/fieldpalette/classes/FieldPaletteHooks.php',
-	'HeimrichHannot\FieldPalette\FieldPaletteRegistry' => 'system/modules/fieldpalette/classes/FieldPaletteRegistry.php',
-	'HeimrichHannot\FieldPalette\FieldPaletteButton'   => 'system/modules/fieldpalette/classes/FieldPaletteButton.php',
+	'HeimrichHannot\FieldPalette\FieldPalette'             => 'system/modules/fieldpalette/classes/FieldPalette.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteHooks'        => 'system/modules/fieldpalette/classes/FieldPaletteHooks.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteDcaExtractor' => 'system/modules/fieldpalette/classes/FieldPaletteDcaExtractor.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteRegistry'     => 'system/modules/fieldpalette/classes/FieldPaletteRegistry.php',
+	'HeimrichHannot\FieldPalette\FieldPaletteButton'       => 'system/modules/fieldpalette/classes/FieldPaletteButton.php',
 ));
 
 

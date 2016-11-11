@@ -104,7 +104,7 @@ class FieldPaletteHooks extends \Controller
      */
     public function sqlGetFromDcaHook($arrDCASqlExtract)
     {
-        $objExtract = new \DcaExtractor(\Config::get('fieldpalette_table'));
+        $objExtract = new FieldPaletteDcaExtractor(\Config::get('fieldpalette_table'));
 
         if ($objExtract->isDbTable())
         {
