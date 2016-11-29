@@ -154,7 +154,7 @@ class FieldPalette
     {
         foreach ($arrFields as $strField => $arrData)
         {
-            if (!is_array($arrData['fieldpalette']))
+            if (!is_array($arrData) || !is_array($arrData['fieldpalette']))
             {
                 continue;
             }
