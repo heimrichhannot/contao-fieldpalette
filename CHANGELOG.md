@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2016-11-29
+
+### Fixed
+- fixed array check
+
 ## [1.2.1] - 2016-11-11
 
 ### Fixed
