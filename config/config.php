@@ -38,10 +38,6 @@ $GLOBALS['TL_MODELS']['tl_fieldpalette'] = 'HeimrichHannot\FieldPalette\FieldPal
  */
 if (TL_MODE == 'BE')
 {
-    $GLOBALS['TL_JAVASCRIPT']['jquery']            = 'assets/jquery/core/' . $GLOBALS['TL_ASSETS']['JQUERY'] . '/jquery.min.js';
-    $GLOBALS['TL_JAVASCRIPT']['jquery-noconflict'] = 'system/modules/fieldpalette/assets/js/jquery-noconflict.js';
-
-
     $GLOBALS['TL_JAVASCRIPT']['datatables-i18n'] = 'system/modules/fieldpalette/assets/vendor/datatables-i18n/datatables-i18n.min.js';
     $GLOBALS['TL_JAVASCRIPT']['datatables-core'] = 'system/modules/fieldpalette/assets/vendor/datatables.net/js/jquery.dataTables.min.js';
     $GLOBALS['TL_JAVASCRIPT']['datatables-rowReorder'] = 'system/modules/fieldpalette/assets/vendor/datatables-RowReorder/js/dataTables.rowReorder.min.js';

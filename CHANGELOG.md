@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2016-12-05
+
+### Changed
+- jquery support within backend is now provided by haste_plus
+
 ## [1.2.2] - 2016-11-29
 
 ### Fixed
