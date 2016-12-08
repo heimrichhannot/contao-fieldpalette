@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2016-12-08
+
+### Fixed
+- fixed label handling
+
 ## [1.2.3] - 2016-12-05
 
 ### Changed

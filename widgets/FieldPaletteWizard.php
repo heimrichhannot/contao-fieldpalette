@@ -156,7 +156,25 @@ class FieldPaletteWizard extends \Widget
 
         foreach ($showFields as $k => $v)
         {
-            $args[$k] = FormSubmission::prepareSpecialValueForPrint($objRow->{$v}, $this->arrDca['fields'][$v], $this->strTable, $dc);
+            $varValue = $objRow->{$v};
+
+            // Call load_callback
+            if (is_array($this->arrDca['fields'][$v]['load_callback']))
+            {
+                foreach ($this->arrDca['fields'][$v]['load_callback'] as $callback)
+                {
+                    if (is_array($callback))
+                    {
+                        $varValue = \System::importStatic($callback[0])->{$callback[1]}($varValue, $dc);
+                    }
+                    elseif (is_callable($callback))
+                    {
+                        $varValue = $callback($varValue, $dc);
+                    }
+                }
+            }
+
+            $args[$k] = FormSubmission::prepareSpecialValueForPrint($varValue, $this->arrDca['fields'][$v], $this->strTable, $dc);
         }
 
         $label = vsprintf(((strlen($this->arrDca['list']['label']['format'])) ? $this->arrDca['list']['label']['format'] : '%s'), $args);
