@@ -1,33 +1,41 @@
 {
-  "name": "heimrichhannot/contao-fieldpalette",
-  "description":"FieldPalette is a contao widget like [MultiColumnWizard] (https://github.com/menatwork/MultiColumnWizard) with its own database table.",
-  "keywords":["contao", "fieldpalette", "fieldgroup"],
-  "type": "contao-module",
-  "homepage":"https://github.com/heimrichhannot/contao-fieldpalette",
-  "license":"LGPL-3.0+",
-  "authors":[
-    {
-      "name":"Heimrich & Hannot",
-      "email":"digitales@heimrich-hannot.de",
-      "homepage":"http://www.heimrich-hannot.de",
-      "role":"Developer"
+    "name": "heimrichhannot/contao-fieldpalette",
+    "description": "FieldPalette is a contao widget like [MultiColumnWizard] (https://github.com/menatwork/MultiColumnWizard) with its own database table.",
+    "keywords": [
+        "contao",
+        "fieldpalette",
+        "fieldgroup"
+    ],
+    "type": "contao-module",
+    "homepage": "https://github.com/heimrichhannot/contao-fieldpalette",
+    "license": "LGPL-3.0+",
+    "authors": [
+        {
+            "name": "Heimrich & Hannot",
+            "email": "digitales@heimrich-hannot.de",
+            "homepage": "http://www.heimrich-hannot.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/heimrichhannot/contao-fieldpalette/issues"
+    },
+    "require": {
+        "contao/core": ">=3.4,<4-dev",
+        "heimrichhannot/contao-haste_plus": "^1.5.5",
+        "datatables/datatables": "^1.10",
+        "heimrichhannot/datatables-additional": "^1.0"
+    },
+    "autoload": {
+        "classmap": [
+            ""
+        ]
+    },
+    "extra": {
+        "contao": {
+            "sources": {
+                "": "system/modules/fieldpalette"
+            }
+        }
     }
-  ],
-  "support":{
-    "issues":"https://github.com/heimrichhannot/contao-fieldpalette/issues"
-  },
-  "require": {
-    "contao/core": ">=3.4,<4-dev",
-    "heimrichhannot/contao-haste_plus": "^1.5.5"
-  },
-  "autoload": {
-    "classmap": [""]
-  },
-  "extra": {
-    "contao": {
-      "sources": {
-        "": "system/modules/fieldpalette"
-      }
-    }
-  }
 }
