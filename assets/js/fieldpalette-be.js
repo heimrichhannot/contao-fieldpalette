@@ -5,7 +5,7 @@ var FieldPaletteBackend =
             FieldPaletteBackend.makeFieldPaletteListSortable(ul.id);
         });
 
-        jQuery('table.tl_fieldpalette_sortable').each(function () {
+        jQuery('table.tl_fieldpalette_wizard').each(function () {
             FieldPaletteBackend.initDataTable(this);
         });
     },
