@@ -8,7 +8,7 @@
                     <tr>
                         <th></th>
                         <th>
-                            <?= $this->label ?>
+                            <?= $this->label ?><?= ($this->mandatory ? '<span class="mandatory">*</span>' : ''); ?>
                         </th>
                         <th class="no-sort"></th>
                     </tr>
@@ -20,7 +20,7 @@
             </li>
         <?php else: ?>
             <li class="tl_content_header">
-                <div class="tl_left"><?= $this->label ?></div>
+                <div class="tl_left"><?= $this->label ?><?= ($this->mandatory ? '<span class="mandatory">*</span>' : ''); ?></div>
                 <div class="tl_right"></div>
                 <div style="clear:both;"></div>
             </li>

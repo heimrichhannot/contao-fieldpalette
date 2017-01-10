@@ -2,7 +2,7 @@
 	<div class="tl_fielpalette_indicator"><?= Image::getHtml('loading.gif', '', 'class="tl_fielpalette_indicator_icon"'); ?></div>
 	<ul class="tl_listing">
 		<li class="tl_content_header">
-			<div class="tl_left"><?= $this->labelIcon; ?> <?= $this->label ?></div>
+			<div class="tl_left"><?= $this->labelIcon; ?> <?= $this->label ?><?= ($this->mandatory ? '<span class="mandatory">*</span>' : ''); ?></div>
 			<div class="tl_right"></div>
 			<div style="clear:both;"></div>
 		</li>

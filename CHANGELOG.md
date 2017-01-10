@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.7] - 2017-01-10
+
+### Fixed
+- Add mandatory label to header field
+
 ## [1.2.6] - 2016-12-12
 
 ### Fixed
