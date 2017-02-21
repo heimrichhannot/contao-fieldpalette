@@ -158,8 +158,26 @@ var FieldPaletteBackend =
         });
         M.show({
             'title': opt.title,
-            'contents': '<iframe src="' + opt.url + '" width="100%" height="' + opt.height + '" frameborder="0"></iframe>'
+            'contents': '<iframe src="' + opt.url + '" width="100%" height="' + opt.height + '" frameborder="0" id="fieldPaletteContent"></iframe>'
         });
+
+        // save and close handling within tl_content editing
+        document.getElementById('fieldPaletteContent').onload = function () {
+
+            var form = (this.contentDocument.body || this.contentWindow.document.body).getElementById('tl_fieldpalette'),
+                url = form.getAttribute('action'),
+                closeModal = HASTE_PLUS.getParameterByName('closeModal', url);
+
+            if (closeModal) {
+                M.hide();
+            }
+
+            form.getElementById('saveNclose').addEventListener("click", function () {
+                url = HASTE_PLUS.addParameterToUri(url, 'closeModal', 1);
+                form.setAttribute('action', url);
+            });
+
+        };
     },
     refreshFieldPalette: function (id) {
 

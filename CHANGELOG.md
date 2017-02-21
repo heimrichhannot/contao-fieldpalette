@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.8] - 2017-02-21
+
+### Added
+- Handle saveNclose within fieldpalette modal
+
 ## [1.2.7] - 2017-01-10
 
 ### Fixed

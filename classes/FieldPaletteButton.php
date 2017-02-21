@@ -139,7 +139,7 @@ class FieldPaletteButton
 
 		$strUrl = \Haste\Util\Url::addQueryString('rt=' . \RequestToken::get(), $strUrl);
 		// TODO: DC_TABLE : 2097 - catch POST and Cookie from saveNClose and do not redirect and just close modal
-		$strUrl = \Haste\Util\Url::addQueryString('nb=1', $strUrl);
+//		$strUrl = \Haste\Util\Url::addQueryString('nb=1', $strUrl);
 
 		// required by DC_TABLE::getNewPosition() within nested fieldpalettes
 		$strUrl = \Haste\Util\Url::addQueryString('mode=2', $strUrl);

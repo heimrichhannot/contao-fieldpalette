@@ -16,7 +16,8 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = array(
         'dynamicPtable'     => true,
         'enableVersioning'  => true,
         'onload_callback'   => array(
-            'setDateAdded' => array('HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true),
+            'setDateAdded'    => array('HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true),
+            'onload_callback' => array('tl_fieldpalette', 'setReferrerOnSaveAndClose'),
         ),
         'sql'               => array(
             'keys' => array(
@@ -52,7 +53,8 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = array(
                 'label'      => &$GLOBALS['TL_LANG']['tl_fieldpalette']['delete'],
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
-                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm'] . '\'))return false;FieldPaletteBackend.deleteFieldPaletteEntry(this,%s);return false;"',
+                'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
+                                . '\'))return false;FieldPaletteBackend.deleteFieldPaletteEntry(this,%s);return false;"',
             ),
             'toggle' => array(
                 'label'           => &$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'],
@@ -142,6 +144,58 @@ class tl_fieldpalette extends Backend
         // TODO
     }
 
+    public function setReferrerOnSaveAndClose(\DataContainer $dc)
+    {
+        if(!$_POST['saveNclose'])
+        {
+            return;
+        }
+
+        if (TL_SCRIPT == 'contao/main.php')
+        {
+            $key = \Input::get('popup') ? 'popupReferer' : 'referer';
+        }
+
+        if ($key !== null)
+        {
+            $session = \Session::getInstance()->getData();
+
+            if (!is_array($session[$key]) || !is_array($session[$key][TL_REFERER_ID]))
+            {
+                $session[$key][TL_REFERER_ID]['last'] = '';
+            }
+
+            while (count($session[$key]) >= 25)
+            {
+                array_shift($session[$key]);
+            }
+
+            $ref = \Input::get('ref');
+
+            if ($ref != '' && isset($session[$key][$ref]))
+            {
+                if (!isset($session[$key][TL_REFERER_ID]))
+                {
+                    $session[$key][TL_REFERER_ID] = array();
+                }
+
+                $session[$key][TL_REFERER_ID]         = array_merge($session[$key][TL_REFERER_ID], $session[$key][$ref]);
+                $session[$key][TL_REFERER_ID]['last'] = $session[$key][$ref]['current'];
+            }
+            elseif (count($session[$key]) > 1)
+            {
+                $session[$key][TL_REFERER_ID] = end($session[$key]);
+            }
+
+            $strUrl = substr(\Environment::get('requestUri'), strlen(TL_PATH) + 1);
+
+            $session[$key][TL_REFERER_ID]['current'] = $strUrl;
+            $session[$key][TL_REFERER_ID]['last'] = $strUrl;
+
+            \Session::getInstance()->setData($session);
+        }
+    }
+
     public function setTable($strTable, $insertID, $arrSet, DataContainer $dc)
     {
         $strFieldPalette = \HeimrichHannot\FieldPalette\FieldPalette::getPaletteFromRequest();
@@ -208,7 +262,11 @@ class tl_fieldpalette extends Backend
         }
 
 
-        return '<a href="' . $href . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml($icon, $label, 'data-state="' . ($row['published'] ? 1 : 0) . '"') . '</a> ';
+        return '<a href="' . $href . '" title="' . specialchars($title) . '"' . $attributes . '>' . Image::getHtml(
+                $icon,
+                $label,
+                'data-state="' . ($row['published'] ? 1 : 0) . '"'
+            ) . '</a> ';
     }
 
 
@@ -251,7 +309,8 @@ class tl_fieldpalette extends Backend
                 {
                     $this->import($callback[0]);
                     $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, ($dc ?: $this));
-                } elseif (is_callable($callback))
+                }
+                elseif (is_callable($callback))
                 {
                     $blnVisible = $callback($blnVisible, ($dc ?: $this));
                 }
@@ -259,10 +318,19 @@ class tl_fieldpalette extends Backend
         }
 
         // Update the database
-        $this->Database->prepare("UPDATE " . \Config::get('fieldpalette_table') . " SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?")->execute($intId);
+        $this->Database->prepare(
+            "UPDATE " . \Config::get('fieldpalette_table') . " SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?"
+        )->execute($intId);
 
         $objVersions->create();
-        $this->log('A new version of record "' . \Config::get('fieldpalette_table') . '.id=' . $intId . '" has been created' . $this->getParentEntries(\Config::get('fielpalette_table'), $intId), __METHOD__, TL_GENERAL);
+        $this->log(
+            'A new version of record "' . \Config::get('fieldpalette_table') . '.id=' . $intId . '" has been created' . $this->getParentEntries(
+                \Config::get('fielpalette_table'),
+                $intId
+            ),
+            __METHOD__,
+            TL_GENERAL
+        );
     }
 
     public function updateParentFieldOnSubmit(DataContainer $dc)
@@ -325,7 +393,11 @@ class tl_fieldpalette extends Backend
             return false;
         }
 
-        $objItems = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPidAndTableAndField($objCurrentRecord->pid, $objCurrentRecord->ptable, $objCurrentRecord->pfield);
+        $objItems = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPidAndTableAndField(
+            $objCurrentRecord->pid,
+            $objCurrentRecord->ptable,
+            $objCurrentRecord->pfield
+        );
 
         $varValue = array();
 
