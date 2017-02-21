@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.9] - 2017-02-21
+
+### Added
+- Fixed saveNclose when contao referrer session failure
+
 ## [1.2.8] - 2017-02-21
 
 ### Added
