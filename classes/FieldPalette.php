@@ -88,7 +88,7 @@ class FieldPalette
                         $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
                     else {
-                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \String::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
 
                     \Session::getInstance()->setData($arrSession);
