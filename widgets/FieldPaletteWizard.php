@@ -152,7 +152,7 @@ class FieldPaletteWizard extends \Widget
         $showFields   = $this->arrDca['list']['label']['fields'];
 
         $dc               = new DC_Table(\Config::get('fieldpalette_table'));
-        $dc->id           = $this->currentRecord;
+        $dc->id           = $objRow->id;
         $dc->activeRecord = $objRow;
 
         foreach ($showFields as $k => $v)
