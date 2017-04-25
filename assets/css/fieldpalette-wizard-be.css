@@ -1,3 +1,7 @@
+.fieldpalette-form-container #tl_buttons{
+    display: none;
+}
+
 .fielpalette-wizard + p.tl_help {
     padding-bottom: 15px;
 }

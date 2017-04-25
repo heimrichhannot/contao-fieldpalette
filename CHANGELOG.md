@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2017-04-25
+
+### Fixed
+- nested fieldpalette issues
+
 ## [1.2.11] - 2017-04-12
 - created new tag
 

@@ -71,7 +71,6 @@ class FieldPaletteHooks extends \Controller
      *
      * @param string $strTable
      *
-     * @return boolean false if Datacontainer not supported
      */
     public function loadDataContainerHook($strTable)
     {
@@ -82,13 +81,13 @@ class FieldPaletteHooks extends \Controller
 
         $dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
 
-        // dynamically set fieldpalette fields from parent table
-        if ($strTable == \Config::get('fieldpalette_table') && \Input::get('table') == \Config::get('fieldpalette_table'))
+        // dca extractor does not provide any entity context
+        if (\Input::get('update') == 'database' && $strTable != \Config::get('fieldpalette_table'))
         {
-            return FieldPalette::loadDynamicPaletteByParentTable(\Input::get('act'), $strTable, $dc);
+            $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
         }
 
-        FieldPalette::registerFieldPalette($dc, $strTable, $strTable);
+        FieldPalette::registerFieldPalette($dc, $strTable);
     }
 
 

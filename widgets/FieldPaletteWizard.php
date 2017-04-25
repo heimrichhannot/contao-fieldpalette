@@ -48,7 +48,7 @@ class FieldPaletteWizard extends \Widget
 
         $this->import('Database');
 
-        $this->arrDca   = \HeimrichHannot\FieldPalette\FieldPalette::getDca($this->strTable, $this->strName);
+        $this->arrDca   = \HeimrichHannot\FieldPalette\FieldPalette::getDca($this->strTable, $this->strTable, $this->strName);
         $this->viewMode = $this->arrDca['list']['viewMode'] ?: 0;
     }
 

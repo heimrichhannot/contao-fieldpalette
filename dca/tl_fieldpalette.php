@@ -202,14 +202,6 @@ class tl_fieldpalette extends Backend
 
         $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($insertID);
 
-        if (!\HeimrichHannot\FieldPalette\FieldPalette::isActive(\Input::get('ptable'), $strFieldPalette))
-        {
-            $objModel->delete();
-
-            $this->log('Fieldpalette "' . $insertID . '" not available within FieldpaletteRegistry, Model deleted.', __METHOD__, TL_ERROR);
-            $this->redirect('contao/main.php?act=error');
-        }
-
         // if are within nested fieldpalettes set parent item tstamp
         if ($arrSet['ptable'] == 'tl_fieldpalette')
         {

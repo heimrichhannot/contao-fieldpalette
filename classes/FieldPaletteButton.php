@@ -125,6 +125,12 @@ class FieldPaletteButton
 
 		$arrParameters = $this->prepareParameter($this->act);
 
+        // for nested fielpalettes, fieldpalette must always be dca context
+        if($arrParameters['table'] != \Config::get('fieldpalette_table'))
+        {
+            $arrParameters['table'] = \Config::get('fieldpalette_table');
+        }
+
 		foreach ($arrParameters as $key => $value) {
 			$strUrl = \Haste\Util\Url::addQueryString($key . '=' . $value, $strUrl);
 		}

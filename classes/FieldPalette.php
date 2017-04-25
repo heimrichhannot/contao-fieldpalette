@@ -17,48 +17,65 @@ use Contao\Input;
 class FieldPalette
 {
 
-	/**
-	 * Object instance (Singleton)
-	 * @var \Session
-	 */
-	protected static $objInstance;
+    /**
+     * Object instance (Singleton)
+     *
+     * @var \Session
+     */
+    protected static $objInstance;
 
-	public static $strTableRequestKey = 'ptable';
+    public static $strTableRequestKey = 'ptable';
 
-	public static $strPaletteRequestKey = 'fieldpalette';
+    public static $strPaletteRequestKey = 'fieldpalette';
 
-	public static $strFieldpaletteRefreshAction = 'refreshFieldPaletteField';
-
-
-	/**
-	 * Prevent cloning of the object (Singleton)
-	 */
-	final public function __clone() {}
+    public static $strFieldpaletteRefreshAction = 'refreshFieldPaletteField';
 
 
-	/**
-	 * Return the object instance (Singleton)
-	 *
-	 * @return \FieldPalette The object instance
-	 */
-	public static function getInstance()
-	{
-		if (static::$objInstance === null)
-		{
-			static::$objInstance = new static();
-		}
-
-		return static::$objInstance;
-	}
+    /**
+     * Prevent cloning of the object (Singleton)
+     */
+    final public function __clone() { }
 
 
-    public static function loadDynamicPaletteByParentTable($strAct, $strTable, &$dc)
+    /**
+     * Return the object instance (Singleton)
+     *
+     * @return \FieldPalette The object instance
+     */
+    public static function getInstance()
     {
+        if (static::$objInstance === null)
+        {
+            static::$objInstance = new static();
+        }
+
+        return static::$objInstance;
+    }
+
+
+    public static function loadDynamicPaletteByParentTable($strAct, $strTable, $strParentTable, &$dc)
+    {
+        $strRootTable = '';
+        $varPalette   = '';
+
         switch ($strAct)
         {
             case 'create':
                 $strParentTable = FieldPalette::getParentTableFromRequest();
-                $strPalette     = FieldPalette::getPaletteFromRequest();
+                $strRootTable = $strParentTable;
+
+                // determine root table from parent entity tree, if requested parent table = tl_fieldpalette -> nested fieldpalette
+                if ($strParentTable == \Config::get('fieldpalette_table') && $intPid = \Input::get('pid'))
+                {
+                    $objParent = FieldPaletteModel::findByPk($intPid);
+
+                    if ($objParent !== null)
+                    {
+                        list($strRootTable, $varPalette) = static::getParentTable($objParent, $objParent->id);
+                    }
+                }
+
+                $varPalette[] = FieldPalette::getPaletteFromRequest(); // append requested palette
                 break;
             case 'cut':
             case 'edit':
@@ -74,21 +91,23 @@ class FieldPalette
                     break;
                 }
 
-                $strParentTable = FieldPalette::getParentTable($objModel, $objModel->id);
-                $strPalette = $objModel->pfield;
-
+                list($strRootTable, $varPalette) = FieldPalette::getParentTable($objModel, $objModel->id);
+                $strParentTable = $objModel->ptable;
 
                 // set back link from request
-                if(\Input::get('popup') && \Input::get('popupReferer'))
+                if (\Input::get('popup') && \Input::get('popupReferer'))
                 {
                     $arrSession = \Session::getInstance()->getData();
 
-                    if(class_exists('\Contao\StringUtil'))
+                    if (class_exists('\Contao\StringUtil'))
                     {
-                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] =
+                            \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
-                    else {
-                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                    else
+                    {
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] =
+                            \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
 
                     \Session::getInstance()->setData($arrSession);
@@ -97,33 +116,51 @@ class FieldPalette
                 break;
         }
 
-        if(!$strParentTable || !$strPalette)
+        if (!$strRootTable || !$varPalette)
         {
             return false;
         }
 
-        if($strTable !== $strParentTable)
-        {
-            \Controller::loadDataContainer($strParentTable);
-        }
-
-        static::registerFieldPalette($dc, $strParentTable, $strTable, $strPalette);
+        return [$varPalette, $strRootTable, $strParentTable];
     }
 
-    public static function registerFieldPalette(&$dc, $strTable, $strLoadedTable, $strPalette = null)
+    public static function extractFieldPaletteFields($strTable, $arrFields = [])
     {
-        if (!is_array($dc['fields']))
+        $arrExtract = [];
+        foreach ($arrFields as $strName => $arrField)
+        {
+            if ($arrField['inputType'] != 'fieldpalette')
+            {
+                continue;
+            }
+            else
+            {
+                $arrExtract = array_merge($arrExtract, $arrField['fieldpalette']['fields']);
+                $arrExtract = array_merge($arrExtract, static::extractFieldPaletteFields($strTable, $arrField['fieldpalette']['fields']));
+            }
+        }
+
+        return $arrExtract;
+    }
+
+    public static function registerFieldPalette(&$dc, $strTable)
+    {
+        $strParentTable = static::getParentTableFromRequest();
+
+        list($varPalette, $strRootTable, $strParentTable) =
+            FieldPalette::loadDynamicPaletteByParentTable(\Input::get('act'), $strTable, $strParentTable, $dc);
+
+        if (!is_array($dc['fields']) || $strParentTable === null || $varPalette === null)
         {
             return false;
         }
 
-        $arrDCA = $GLOBALS['TL_DCA'][$strTable];
-
-        // request nested fieldpalette
-        if($strLoadedTable == \Config::get('fieldpalette_table') && $strTable !== $strLoadedTable)
+        if ($strTable != $strRootTable)
         {
-            $arrDCA = $dc;
+            \Controller::loadDataContainer($strRootTable);
         }
+
+        $arrDCA = $GLOBALS['TL_DCA'][$strRootTable];
 
         $arrFields = $arrDCA['fields'];
 
@@ -132,17 +169,32 @@ class FieldPalette
             return false;
         }
 
-        if ($strPalette !== null)
+        if (!$varPalette)
         {
-            if (!isset($arrFields[$strPalette]))
+            return false;
+        }
+
+        // nested palette
+        if (is_array($varPalette))
+        {
+            $arrNestedPalette = static::findNestedFieldPaletteFields($varPalette, $arrFields);
+
+            if ($arrNestedPalette !== false)
+            {
+                $arrFields = $arrNestedPalette;
+            }
+        }
+        else
+        {
+            if (!isset($arrFields[$varPalette]))
             {
                 return false;
             }
 
-            $arrFields = array($strPalette => $arrFields[$strPalette]);
+            $arrFields = [$varPalette => $arrFields[$varPalette]];
         }
 
-        $blnFound = static::registerFieldPaletteFields($dc, $strTable, $strLoadedTable, $arrFields);
+        $blnFound = static::registerFieldPaletteFields($dc, $strTable, $strParentTable, $strRootTable, $varPalette, $arrFields);
 
         if (!$blnFound)
         {
@@ -150,11 +202,61 @@ class FieldPalette
         }
     }
 
-    public static function registerFieldPaletteFields(&$dc, $strTable, $strLoadedTable, $arrFields, $blnFound = false)
+    public static function findNestedFieldPaletteFields(array $arrPalettes, $arrFields)
     {
+        if (count($arrPalettes) == 1)
+        {
+            $strPalette = $arrPalettes[0];
+
+            // root level
+            if (!isset($arrFields['fields']) && isset($arrFields[$strPalette]))
+            {
+                return [$strPalette => $arrFields[$strPalette]];
+            }
+
+            // nested palette
+            if (isset($arrFields['fields'][$strPalette]))
+            {
+                return [$strPalette => $arrFields['fields'][$strPalette]];
+            }
+
+            return false;
+        }
+
+        foreach ($arrPalettes as $i => $strFieldPalette)
+        {
+            if (!isset($arrFields[$strFieldPalette]))
+            {
+                return false;
+            }
+
+            if ($arrFields[$strFieldPalette]['inputType'] != 'fieldpalette')
+            {
+                return false;
+            }
+
+            if (!is_array($arrFields[$strFieldPalette]['fieldpalette']))
+            {
+                return false;
+            }
+
+            $arrChildPalettes = array_slice($arrPalettes, $i + 1, count($arrPalettes));
+
+            return static::findNestedFieldPaletteFields($arrChildPalettes, $arrFields[$strFieldPalette]['fieldpalette']['fields']);
+        }
+
+    }
+
+    public static function registerFieldPaletteFields(&$dc, $strTable, $strParentTable, $strRootTable, $varPalette, $arrFields, $blnFound = false)
+    {
+        if (!is_array($arrFields))
+        {
+            return false;
+        }
+
         foreach ($arrFields as $strField => $arrData)
         {
-            if (!is_array($arrData) || !is_array($arrData['fieldpalette']))
+            if (!is_array($arrData) || !is_array($arrData['fieldpalette']) || !is_array($arrData['fieldpalette']['fields']))
             {
                 continue;
             }
@@ -163,16 +265,13 @@ class FieldPalette
             // add fields, for contao database update process
             $dc['fields'] = array_merge($dc['fields'], $arrData['fieldpalette']['fields']);
 
-            // support fieldpalette nesting
-            static::registerFieldPaletteFields($dc, $strTable, $strLoadedTable, $arrData['fieldpalette']['fields'], $blnFound);
-
-            FieldPaletteRegistry::set($strLoadedTable, $strField, $dc);
+            FieldPaletteRegistry::set($strRootTable, $strField, $dc);
 
             // set active ptable
-            if (static::isActive($strLoadedTable, $strField))
+            if (static::isActive($strRootTable, $strParentTable, $strField))
             {
-                \Controller::loadLanguageFile($strLoadedTable); // allow translations within parent fieldpalette table
-                $dc = static::getDca($strLoadedTable, $strField);
+                \Controller::loadLanguageFile($strRootTable); // allow translations within parent fieldpalette table
+                $dc = static::getDca($strRootTable, $strParentTable, $strField, $varPalette);
             }
 
             $blnFound = true;
@@ -181,264 +280,326 @@ class FieldPalette
         return $blnFound;
     }
 
-	public static function isActive($strTable, $strField)
-	{
-	    $arrRegistry = FieldPaletteRegistry::get($strTable);
+    public static function isActive($strRootTable, $strParentTable, $strField)
+    {
+        $arrRegistry = FieldPaletteRegistry::get($strRootTable);
 
-		if(!isset($arrRegistry[$strField]))
-		{
-			return false;
-		}
+        if (!isset($arrRegistry[$strField]))
+        {
+            return false;
+        }
 
-		// determine active state by current element
-		if(\Input::get('table') == \Config::get('fieldpalette_table'))
-		{
-			$id = strlen(\Input::get('id')) ? \Input::get('id') : CURRENT_ID;
+        // determine active state by current element
+        if (\Input::get('table') == \Config::get('fieldpalette_table'))
+        {
+            $id = strlen(\Input::get('id')) ? \Input::get('id') : CURRENT_ID;
 
-			switch (\Input::get('act'))
-			{
-				case 'edit':
-				case 'show':
-				case 'delete':
-				case 'toggle':
-					$objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($id);
+            switch (\Input::get('act'))
+            {
+                case 'create':
+                    return true;
+                case 'cut':
+                case 'edit':
+                case 'show':
+                case 'delete':
+                case 'toggle':
+                    $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($id);
 
-					if($objModel === null)
-					{
-						return false;
-					}
+                    if ($objModel === null)
+                    {
+                        return false;
+                    }
 
-					return ($strTable == $objModel->ptable && $strField == $objModel->pfield);
-			}
-		}
+                    return ($strParentTable == $objModel->ptable && $strField == $objModel->pfield);
+            }
+        }
 
-		return ($strTable == \Input::get(static::$strTableRequestKey) && $strField == \Input::get(static::$strPaletteRequestKey));
-	}
+        return false;
+    }
 
-	public static function getParentTableFromRequest()
+    public static function getParentTableFromRequest()
     {
         return \Input::get(static::$strTableRequestKey);
     }
 
-	public static function getPaletteFromRequest()
-	{
-		return \Input::get(static::$strPaletteRequestKey);
-	}
-
-	public static function getParentTable($objModel, $intId)
+    public static function getPaletteFromRequest()
     {
-        if($objModel->ptable == \Config::get('fieldpalette_table'))
+        return \Input::get(static::$strPaletteRequestKey);
+    }
+
+    public static function getParentTable($objModel, $intId, $arrPalette = [])
+    {
+        // always store current pfield
+        if (empty($arrPalette))
+        {
+            $arrPalette = [$objModel->pfield];
+        }
+
+        if ($objModel->ptable == \Config::get('fieldpalette_table'))
         {
             $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($objModel->pid);
 
-            if($objModel === null)
+            if ($objModel === null)
             {
                 throw new \Exception(sprintf($GLOBALS['TL_LANG']['ERR']['fieldPaletteNestedParentTableDoesNotExist'], $intId));
             }
 
-            return static::getParentTable($objModel, $intId);
+            // save nested path
+            if ($objModel->pfield)
+            {
+                $arrPalette[] = $objModel->pfield;
+            }
+
+            return static::getParentTable($objModel, $intId, $arrPalette);
         }
 
-        return $objModel->ptable;
+        return [$objModel->ptable, array_reverse($arrPalette)];
     }
 
-	public static function getDca($strTable, $strField)
-	{
-		\Controller::loadDataContainer($strTable);
-		\Controller::loadDataContainer(\Config::get('fieldpalette_table'));
+    public static function getDca($strRootTable, $strParentTable, $strField, $varPalette = null)
+    {
+        \Controller::loadDataContainer($strRootTable);
+        \Controller::loadDataContainer(\Config::get('fieldpalette_table'));
 
-		$arrData = array();
+        $arrData = [];
 
-		$arrDefaults = $GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
-		$arrCustom = $GLOBALS['TL_DCA'][$strTable]['fields'][$strField]['fieldpalette'];
+        $arrDefaults = $GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
+        $arrCustom   = $GLOBALS['TL_DCA'][$strRootTable]['fields'][$strField]['fieldpalette'];
 
-		if(!is_array($arrDefaults) || !is_array($arrCustom))
-		{
-			return $arrData;
-		}
+        if (is_array($varPalette))
+        {
+            $arrNestedPalette = static::findNestedFieldPaletteFields($varPalette, $GLOBALS['TL_DCA'][$strRootTable]['fields']);
 
-		// replace tl_fieldpalette with custom config
-		$arrData = @array_replace_recursive($arrDefaults, $arrCustom); // supress warning, as long as references may exist in both arrays
-		$arrData['config']['ptable'] = $strTable;
+            if ($arrNestedPalette !== false)
+            {
+                $strNestedPalette = key($arrNestedPalette);
+                $arrCustom        = $arrNestedPalette[$strNestedPalette]['fieldpalette'];
+            }
+        }
 
-		if ($arrData['config']['hidePublished'])
-		{
-			$arrData['fields']['published']['inputType'] = 'hidden';
-			$arrData['fields']['published']['default'] = true;
-			unset($arrData['list']['operations']['toggle']);
-			$arrData['palettes']['default'] .= ',published';
-		}
-		else
-		{
-			$arrData['palettes']['default'] .= ';{published_legend},published'; // always append published
-		}
+        if (!is_array($arrDefaults) || !is_array($arrCustom))
+        {
+            return $arrData;
+        }
 
-		return $arrData;
-	}
+        // replace tl_fieldpalette with custom config
+        $arrData                     =
+            @array_replace_recursive($arrDefaults, $arrCustom); // supress warning, as long as references may exist in both arrays
+        $arrData['config']['ptable'] = $strParentTable;
 
-	public static function adjustBackendModules()
-	{
-		foreach($GLOBALS['BE_MOD'] as $strGroup => $arrGroup)
-		{
-			if(!is_array($arrGroup))
-			{
-				continue;
-			}
+        if ($arrData['config']['hidePublished'])
+        {
+            $arrData['fields']['published']['inputType'] = 'hidden';
+            $arrData['fields']['published']['default']   = true;
+            unset($arrData['list']['operations']['toggle']);
+            $arrData['palettes']['default'] .= ',published';
+        }
+        else
+        {
+            $arrData['palettes']['default'] .= ';{published_legend},published'; // always append published
+        }
 
-			foreach($arrGroup as $strModule => $arrModule)
-			{
-				if(!is_array($arrModule) && !is_array($arrModule['tables']))
-				{
-					continue;
-				}
+        // Include all excluded fields which are allowed for the current user
+        if ($arrData['fields'])
+        {
+            foreach ($arrData['fields'] as $k=>$v)
+            {
+                if ($v['exclude'])
+                {
+                    if (\BackendUser::getInstance()->hasAccess(\Config::get('fieldpalette_table').'::'.$k, 'alexf'))
+                    {
+                        if (\Config::get('fieldpalette_table') == 'tl_user_group')
+                        {
+                            $arrData['fields'][$k]['orig_exclude'] = $arrData['fields'][$k]['exclude'];
+                        }
 
-				$GLOBALS['BE_MOD'][$strGroup][$strModule]['tables'][] = \Config::get('fieldpalette_table');
-			}
-		}
-	}
+                        $arrData['fields'][$k]['exclude'] = false;
+                    }
+                }
+            }
+        }
 
-	public static function refuseFromBackendModuleByTable($strTable)
-	{
-		foreach($GLOBALS['BE_MOD'] as $strGroup => $arrGroup)
-		{
-			if(!is_array($arrGroup))
-			{
-				continue;
-			}
+        return $arrData;
+    }
 
-			foreach($arrGroup as $strModule => $arrModule)
-			{
-				if(!is_array($arrModule) || !is_array($arrModule['tables']))
-				{
-					continue;
-				}
+    public static function adjustBackendModules()
+    {
+        foreach ($GLOBALS['BE_MOD'] as $strGroup => $arrGroup)
+        {
+            if (!is_array($arrGroup))
+            {
+                continue;
+            }
 
-				if(!in_array($strTable, $arrModule['tables']) || ($idx = array_search(\Config::get('fieldpalette_table'), $arrModule['tables'])) === false)
-				{
-					continue;
-				}
+            foreach ($arrGroup as $strModule => $arrModule)
+            {
+                if (!is_array($arrModule) && !is_array($arrModule['tables']))
+                {
+                    continue;
+                }
 
-				unset($GLOBALS['BE_MOD'][$strGroup][$strModule]['tables'][$idx]);
-			}
-		}
-	}
+                $GLOBALS['BE_MOD'][$strGroup][$strModule]['tables'][] = \Config::get('fieldpalette_table');
+            }
+        }
+    }
 
-	/**
-	 * Use this method as an oncopy_callback in order to support recursive copying fieldpalette records by copying their parent record
-	 * @param $intNewId
-	 */
-	public function copyFieldPaletteRecords($intNewId)
-	{
-		if (TL_MODE != 'BE')
-			return;
+    public static function refuseFromBackendModuleByTable($strTable)
+    {
+        foreach ($GLOBALS['BE_MOD'] as $strGroup => $arrGroup)
+        {
+            if (!is_array($arrGroup))
+            {
+                continue;
+            }
 
-		$intId = strlen(Input::get('id')) ? Input::get('id') : CURRENT_ID;
-		$strTable = 'tl_' . \Input::get('do');
+            foreach ($arrGroup as $strModule => $arrModule)
+            {
+                if (!is_array($arrModule) || !is_array($arrModule['tables']))
+                {
+                    continue;
+                }
 
-		if (!$intId || !$strTable)
-			return;
+                if (!in_array($strTable, $arrModule['tables'])
+                    || ($idx = array_search(\Config::get('fieldpalette_table'), $arrModule['tables'])) === false
+                )
+                {
+                    continue;
+                }
 
-		\Controller::loadDataContainer($strTable);
-		$arrDcaFields = $GLOBALS['TL_DCA'][$strTable]['fields'];
+                unset($GLOBALS['BE_MOD'][$strGroup][$strModule]['tables'][$idx]);
+            }
+        }
+    }
 
-		static::recursivelyCopyFieldPaletteRecords($intId, $intNewId, $strTable, $arrDcaFields);
-	}
+    /**
+     * Use this method as an oncopy_callback in order to support recursive copying fieldpalette records by copying their parent record
+     *
+     * @param $intNewId
+     */
+    public function copyFieldPaletteRecords($intNewId)
+    {
+        if (TL_MODE != 'BE')
+        {
+            return;
+        }
 
-	/**
-	 * @param $intPid int The id of the former parent record
-	 * @param $intNewId int the id of the new parent record just copied from the former record
-	 * @param $strTable string The parent table
-	 * @param $arrDcaFields array A dca array of fields
-	 */
-	public static function recursivelyCopyFieldPaletteRecords($intPid, $intNewId, $strTable, array $arrDcaFields)
-	{
-		foreach ($arrDcaFields as $strField => $arrData)
-		{
-			if ($arrData['inputType'] == 'fieldpalette')
-			{
-				if (isset($arrData['fieldpalette']['fields']) && !$arrData['eval']['doNotCopy'])
-				{
-					$objFieldPaletteRecords = FieldPaletteModel::findByPidAndTableAndField($intPid, $strTable, $strField);
+        $intId    = strlen(Input::get('id')) ? Input::get('id') : CURRENT_ID;
+        $strTable = 'tl_' . \Input::get('do');
 
-					if ($objFieldPaletteRecords === null)
-						continue;
+        if (!$intId || !$strTable)
+        {
+            return;
+        }
 
-					while ($objFieldPaletteRecords->next())
-					{
-						$objFieldpalette = new FieldPaletteModel();
+        \Controller::loadDataContainer($strTable);
+        $arrDcaFields = $GLOBALS['TL_DCA'][$strTable]['fields'];
 
-						// get existing data except id
-						$arrFieldData = $objFieldPaletteRecords->row();
-						unset($arrFieldData['id']);
+        static::recursivelyCopyFieldPaletteRecords($intId, $intNewId, $strTable, $arrDcaFields);
+    }
 
-						$objFieldpalette->setRow($arrFieldData);
+    /**
+     * @param $intPid       int The id of the former parent record
+     * @param $intNewId     int the id of the new parent record just copied from the former record
+     * @param $strTable     string The parent table
+     * @param $arrDcaFields array A dca array of fields
+     */
+    public static function recursivelyCopyFieldPaletteRecords($intPid, $intNewId, $strTable, array $arrDcaFields)
+    {
+        foreach ($arrDcaFields as $strField => $arrData)
+        {
+            if ($arrData['inputType'] == 'fieldpalette')
+            {
+                if (isset($arrData['fieldpalette']['fields']) && !$arrData['eval']['doNotCopy'])
+                {
+                    $objFieldPaletteRecords = FieldPaletteModel::findByPidAndTableAndField($intPid, $strTable, $strField);
 
-						// set new data
-						$objFieldpalette->tstamp = time();
-						$objFieldpalette->pid = $intNewId;
-						$objFieldpalette->published = true;
+                    if ($objFieldPaletteRecords === null)
+                    {
+                        continue;
+                    }
 
-						if (isset($arrData['eval']['fieldpalette']['copy_callback']) && is_array($arrData['eval']['fieldpalette']['copy_callback']))
-						{
-							foreach ($arrData['eval']['fieldpalette']['copy_callback'] as $arrCallback)
-							{
-								if (is_array($arrCallback))
-								{
-									\System::importStatic($arrCallback[0]);
-									$arrCallback[0]::$arrCallback[1]($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
-								}
-								elseif (is_callable($arrCallback))
-								{
-									$arrCallback($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
-								}
-							}
-						}
+                    while ($objFieldPaletteRecords->next())
+                    {
+                        $objFieldpalette = new FieldPaletteModel();
 
-						$objFieldpalette->save();
+                        // get existing data except id
+                        $arrFieldData = $objFieldPaletteRecords->row();
+                        unset($arrFieldData['id']);
 
-						static::recursivelyCopyFieldPaletteRecords($objFieldPaletteRecords->id, $objFieldpalette->id,
-							\Config::get('fieldpalette_table'), $arrData['fieldpalette']['fields']);
-					}
-				}
-			}
-			else
-			{
-				if ($strTable == \Config::get('fieldpalette_table'))
-				{
-					$objFieldPaletteRecords = FieldPaletteModel::findByPidAndTableAndField($intPid, $strTable, $strField);
+                        $objFieldpalette->setRow($arrFieldData);
 
-					if ($objFieldPaletteRecords === null)
-						continue;
+                        // set new data
+                        $objFieldpalette->tstamp    = time();
+                        $objFieldpalette->pid       = $intNewId;
+                        $objFieldpalette->published = true;
 
-					while ($objFieldPaletteRecords->next())
-					{
-						$objFieldpalette = new FieldPaletteModel();
-						$objFieldpalette->setRow($objFieldPaletteRecords->row());
-						// set new data
-						$objFieldpalette->tstamp = time();
-						$objFieldpalette->pid = $intNewId;
-						$objFieldpalette->published = true;
+                        if (isset($arrData['eval']['fieldpalette']['copy_callback']) && is_array($arrData['eval']['fieldpalette']['copy_callback']))
+                        {
+                            foreach ($arrData['eval']['fieldpalette']['copy_callback'] as $arrCallback)
+                            {
+                                if (is_array($arrCallback))
+                                {
+                                    \System::importStatic($arrCallback[0]);
+                                    $arrCallback[0]::$arrCallback[1]($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
+                                }
+                                elseif (is_callable($arrCallback))
+                                {
+                                    $arrCallback($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
+                                }
+                            }
+                        }
 
-						if (isset($arrData['eval']['fieldpalette']['copy_callback']) && is_array($arrData['eval']['fieldpalette']['copy_callback']))
-						{
-							foreach ($arrData['eval']['fieldpalette']['copy_callback'] as $arrCallback)
-							{
-								if (is_array($arrCallback))
-								{
-									\System::importStatic($arrCallback[0]);
-									$arrCallback[0]::$arrCallback[1]($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
-								}
-								elseif (is_callable($arrCallback))
-								{
-									$arrCallback($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
-								}
-							}
-						}
+                        $objFieldpalette->save();
 
-						$objFieldpalette->save();
-					}
-				}
-			}
-		}
-	}
+                        static::recursivelyCopyFieldPaletteRecords(
+                            $objFieldPaletteRecords->id,
+                            $objFieldpalette->id,
+                            \Config::get('fieldpalette_table'),
+                            $arrData['fieldpalette']['fields']
+                        );
+                    }
+                }
+            }
+            else
+            {
+                if ($strTable == \Config::get('fieldpalette_table'))
+                {
+                    $objFieldPaletteRecords = FieldPaletteModel::findByPidAndTableAndField($intPid, $strTable, $strField);
+
+                    if ($objFieldPaletteRecords === null)
+                    {
+                        continue;
+                    }
+
+                    while ($objFieldPaletteRecords->next())
+                    {
+                        $objFieldpalette = new FieldPaletteModel();
+                        $objFieldpalette->setRow($objFieldPaletteRecords->row());
+                        // set new data
+                        $objFieldpalette->tstamp    = time();
+                        $objFieldpalette->pid       = $intNewId;
+                        $objFieldpalette->published = true;
+
+                        if (isset($arrData['eval']['fieldpalette']['copy_callback']) && is_array($arrData['eval']['fieldpalette']['copy_callback']))
+                        {
+                            foreach ($arrData['eval']['fieldpalette']['copy_callback'] as $arrCallback)
+                            {
+                                if (is_array($arrCallback))
+                                {
+                                    \System::importStatic($arrCallback[0]);
+                                    $arrCallback[0]::$arrCallback[1]($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
+                                }
+                                elseif (is_callable($arrCallback))
+                                {
+                                    $arrCallback($objFieldpalette, $intPid, $intNewId, $strTable, $arrData);
+                                }
+                            }
+                        }
+
+                        $objFieldpalette->save();
+                    }
+                }
+            }
+        }
+    }
 }
