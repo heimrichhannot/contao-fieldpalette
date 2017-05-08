@@ -127,6 +127,12 @@ class FieldPalette
     public static function extractFieldPaletteFields($strTable, $arrFields = [])
     {
         $arrExtract = [];
+
+        if(!is_array($arrFields))
+        {
+            return $arrExtract;
+        }
+
         foreach ($arrFields as $strName => $arrField)
         {
             if ($arrField['inputType'] != 'fieldpalette')

@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.3.2] - 2017-05-08
+
+### Fixed
+- `Fieldpalette::extractFieldPaletteFields` do not proceed when no array
+
 ## [1.3.1] - 2017-04-25
 
 ### Fixed
