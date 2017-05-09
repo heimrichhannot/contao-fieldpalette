@@ -75,7 +75,10 @@ class FieldPalette
                     }
                 }
 
-                $varPalette[] = FieldPalette::getPaletteFromRequest(); // append requested palette
+                if (is_array($varPalette))
+                {
+                    $varPalette[] = FieldPalette::getPaletteFromRequest(); // append requested palette
+                }
                 break;
             case 'cut':
             case 'edit':

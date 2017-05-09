@@ -198,7 +198,7 @@ class FieldPaletteWizard extends \Widget
 
             $this->import($strClass);
 
-            return $this->$strClass->$strMethod($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
+            return $this->{$strClass}->{$strMethod}($objRow->row(), $label, $this, $folderAttribute, false, $blnProtected);
         }
         elseif (is_callable($this->arrDca['list']['label']['label_callback']))
         {

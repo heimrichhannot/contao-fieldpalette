@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.3.3] - 2017-05-09
+
+### Fixed
+- php 7 support, array handling in FieldPalette.php
+
 ## [1.3.2] - 2017-05-08
 
 ### Fixed
