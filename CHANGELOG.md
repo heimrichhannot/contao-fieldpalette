@@ -1,5 +1,12 @@
-# Change Log
+# Changelog
 All notable changes to this project will be documented in this file.
+
+## [1.3.5] - 2017-06-12
+
+### Fixed
+- array check in FieldPalette.php
+- fixed config.php paths for optional contao 4 support
+- removed traditional arrays
 
 ## [1.3.4] - 2017-05-11
 

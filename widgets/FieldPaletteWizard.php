@@ -31,11 +31,11 @@ class FieldPaletteWizard extends \Widget
      */
     protected $strTemplate = 'be_fieldpalette';
 
-    protected $arrDca = array();
+    protected $arrDca = [];
 
     protected $objModels;
 
-    protected $arrButtonDefaults = array();
+    protected $arrButtonDefaults = [];
 
     protected $viewMode = 0;
 
@@ -64,7 +64,7 @@ class FieldPaletteWizard extends \Widget
 
         $this->objModels = FieldPaletteModel::findByPidAndTableAndField($this->currentRecord, $this->strTable, $this->strName);
 
-        $this->arrButtonDefaults = array(
+        $this->arrButtonDefaults = [
             'do'              => \Input::get('do'),
             'ptable'          => $this->strTable,
             'table'           => \Config::get('fieldpalette_table'),
@@ -74,7 +74,7 @@ class FieldPaletteWizard extends \Widget
             'popup'           => true,
             'syncId'          => 'ctrl_' . $this->strId,
             'pfield'          => $this->strId,
-        );
+        ];
 
         $objT = new \FrontendTemplate($this->getViewTemplate('fieldpalette_wizard'));
 
@@ -82,7 +82,7 @@ class FieldPaletteWizard extends \Widget
         $objT->listView = $this->generateListView();
         $objT->strId    = $this->strId;
 
-        $varValue = array();
+        $varValue = [];
 
         if ($this->objModels !== null)
         {
@@ -123,7 +123,7 @@ class FieldPaletteWizard extends \Widget
         $objT->labelIcon = '<img src="system/modules/fieldpalette/assets/img/fieldpalette.png" width="16" height="16" alt="">';
         $objT->mandatory = $this->mandatory;
 
-        $arrItems = array();
+        $arrItems = [];
         $i        = 0;
 
         if ($this->objModels !== null)
@@ -228,7 +228,7 @@ class FieldPaletteWizard extends \Widget
      */
     protected function generateButtons(
         $objRow,
-        $arrRootIds = array(),
+        $arrRootIds = [],
         $blnCircularReference = false,
         $arrChildRecordIds = null,
         $strPrevious = null,
@@ -247,7 +247,7 @@ class FieldPaletteWizard extends \Widget
 
         foreach ($this->arrDca['list']['operations'] as $k => $v)
         {
-            $v  = is_array($v) ? $v : array($v);
+            $v  = is_array($v) ? $v : [$v];
             $id = specialchars(rawurldecode($objRow->id));
 
             $label      = $v['label'][0] ?: $k;
@@ -265,7 +265,7 @@ class FieldPaletteWizard extends \Widget
                     sprintf($title, $objRow->id)
                 )
             );
-            $objButton->setAttributes(array($attributes));
+            $objButton->setAttributes([$attributes]);
             $objButton->setLabel(\Image::getHtml($v['icon'], $label));
             $objButton->setTitle(specialchars($title));
 
@@ -317,8 +317,8 @@ class FieldPaletteWizard extends \Widget
                 continue;
             }
 
-            $arrDirections = array('up', 'down');
-            $arrRootIds    = is_array($arrRootIds) ? $arrRootIds : array($arrRootIds);
+            $arrDirections = ['up', 'down'];
+            $arrRootIds    = is_array($arrRootIds) ? $arrRootIds : [$arrRootIds];
 
             foreach ($arrDirections as $dir)
             {

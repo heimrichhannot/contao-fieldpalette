@@ -12,17 +12,17 @@
 /**
  * Register the namespaces
  */
-ClassLoader::addNamespaces(array
-(
-	'HeimrichHannot',
-));
+ClassLoader::addNamespaces(
+    [
+	'HeimrichHannot',]
+);
 
 
 /**
  * Register the classes
  */
-ClassLoader::addClasses(array
-(
+ClassLoader::addClasses(
+    [
 	// Models
 	'HeimrichHannot\FieldPalette\FieldPaletteModel'        => 'system/modules/fieldpalette/models/FieldPaletteModel.php',
 
@@ -34,15 +34,15 @@ ClassLoader::addClasses(array
 	'HeimrichHannot\FieldPalette\FieldPaletteHooks'        => 'system/modules/fieldpalette/classes/FieldPaletteHooks.php',
 	'HeimrichHannot\FieldPalette\FieldPaletteDcaExtractor' => 'system/modules/fieldpalette/classes/FieldPaletteDcaExtractor.php',
 	'HeimrichHannot\FieldPalette\FieldPaletteRegistry'     => 'system/modules/fieldpalette/classes/FieldPaletteRegistry.php',
-	'HeimrichHannot\FieldPalette\FieldPaletteButton'       => 'system/modules/fieldpalette/classes/FieldPaletteButton.php',
-));
+	'HeimrichHannot\FieldPalette\FieldPaletteButton'       => 'system/modules/fieldpalette/classes/FieldPaletteButton.php',]
+);
 
 
 /**
  * Register the templates
  */
-TemplateLoader::addFiles(array
-(
+TemplateLoader::addFiles(
+    [
 	'fieldpalette_item_default'     => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_item_table'       => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_button_default'   => 'system/modules/fieldpalette/templates/fieldpalette',
@@ -51,5 +51,5 @@ TemplateLoader::addFiles(array
 	'fieldpalette_wizard_default'   => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_listview_table'   => 'system/modules/fieldpalette/templates/fieldpalette',
 	'fieldpalette_buttons_default'  => 'system/modules/fieldpalette/templates/fieldpalette',
-	'be_fieldpalette'               => 'system/modules/fieldpalette/templates/backend',
-));
+	'be_fieldpalette'               => 'system/modules/fieldpalette/templates/backend',]
+);

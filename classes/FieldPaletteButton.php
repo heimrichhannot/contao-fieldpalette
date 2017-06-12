@@ -24,7 +24,7 @@ class FieldPaletteButton
 	 */
 	protected static $objInstance;
 
-	protected $arrOptions = array();
+	protected $arrOptions = [];
 
 	protected function __construct()
 	{
@@ -155,7 +155,7 @@ class FieldPaletteButton
 
 	protected function prepareParameter($act)
 	{
-		$arrParameters = array(
+		$arrParameters = [
 			'do'                   => $this->do,
 			'ptable'               => $this->ptable,
 			'table'                => $this->table,
@@ -164,13 +164,13 @@ class FieldPaletteButton
 			'id'                   => $this->id,
 			$this->fieldpaletteKey => $this->fieldpalette,
 			'popup'                => $this->popup
-		);
+        ];
 
 		$arrAllowed = array_keys($arrParameters);
 
 		switch ($act) {
 			case 'create':
-				$arrAllowed = array('do', 'ptable', 'table', 'act', 'pid', 'fieldpalette', 'popup', 'popupReferer');
+				$arrAllowed = ['do', 'ptable', 'table', 'act', 'pid', 'fieldpalette', 'popup', 'popupReferer'];
 
                 // nested fieldpalettes
                 if($this->ptable == \Config::get('fieldpalette_table') && ($objModel = FieldPaletteModel::findByPk($this->pid)) !== null)
@@ -179,20 +179,20 @@ class FieldPaletteButton
                 }
 				break;
 			case 'toggle':
-				$arrAllowed          = array('do', 'table', 'state', 'tid', 'id');
+				$arrAllowed          = ['do', 'table', 'state', 'tid', 'id'];
 				$arrParameters['id'] = $this->pid;
 				break;
 			case 'edit':
-				$arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
+				$arrAllowed = ['do', 'table', 'act', 'id', 'popup', 'popupReferer'];
 				break;
             case 'copy':
-                $arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
+                $arrAllowed = ['do', 'table', 'act', 'id', 'popup', 'popupReferer'];
                 break;
 			case 'show':
-				$arrAllowed = array('do', 'table', 'act', 'id', 'popup', 'popupReferer');
+				$arrAllowed = ['do', 'table', 'act', 'id', 'popup', 'popupReferer'];
 				break;
 			case 'delete':
-				$arrAllowed = array('do', 'table', 'act', 'id');
+				$arrAllowed = ['do', 'table', 'act', 'id'];
 				break;
 		}
 
@@ -251,7 +251,7 @@ class FieldPaletteButton
 		return $this->arrOptions;
 	}
 
-	public function addOptions(array $arrOptions = array())
+	public function addOptions(array $arrOptions = [])
 	{
 		$this->arrOptions = array_merge($this->arrOptions, $arrOptions);
 

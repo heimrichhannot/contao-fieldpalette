@@ -15,7 +15,7 @@ namespace HeimrichHannot\FieldPalette;
 class FieldPaletteHooks extends \Controller
 {
 
-    protected static $arrSkipTables   = array('tl_formdata');
+    protected static $arrSkipTables   = ['tl_formdata'];
     protected static $intMaximumDepth = 10;
     protected static $intCurrentDepth = 0;
 
@@ -53,7 +53,7 @@ class FieldPaletteHooks extends \Controller
                 $objWidget                = new $strClass($arrData);
                 $objWidget->currentRecord = $dc->id;
 
-                die(json_encode(array('field' => $strName, 'target' => '#ctrl_' . $strName, 'content' => $objWidget->generate())));
+                die(json_encode(['field' => $strName, 'target' => '#ctrl_' . $strName, 'content' => $objWidget->generate()]));
             }
 
             header('HTTP/1.1 400 Bad Request');

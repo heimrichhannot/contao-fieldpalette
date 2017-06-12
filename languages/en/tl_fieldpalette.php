@@ -12,9 +12,9 @@
 /**
  * Fields
  */
-$GLOBALS['TL_LANG']['tl_fieldpalette']['published'] = array('Publish element', 'Show the element on the website.');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['start'] = array('Show from', 'Do not show the element on the website before this day.');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['stop'] = array('Show until', 'Do not show the element on the website on and after this day.');
+$GLOBALS['TL_LANG']['tl_fieldpalette']['published'] = ['Publish element', 'Show the element on the website.'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['start'] = ['Show from', 'Do not show the element on the website before this day.'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['stop'] = ['Show until', 'Do not show the element on the website on and after this day.'];
 
 /**
  * Legends
@@ -24,12 +24,12 @@ $GLOBALS['TL_LANG']['tl_fieldpalette']['published_legend'] = 'Publish';
 /**
  * Buttons
  */
-$GLOBALS['TL_LANG']['tl_fieldpalette']['new'] = array('New element','Create new element');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['edit']	= array('Edit element','Edit element ID %s');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['copy'] = array('Copy element','Copy element ID %s');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['delete']= array('Delete element löschen','Delete element ID %s');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'] = array('Publish/unpublish element','Publish/unpublish element ID %s');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['show'] = array('Show element','Show details of element ID %s');
+$GLOBALS['TL_LANG']['tl_fieldpalette']['new'] = ['New element', 'Create new element'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['edit']	= ['Edit element', 'Edit element ID %s'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['copy'] = ['Copy element', 'Copy element ID %s'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['delete']= ['Delete element löschen', 'Delete element ID %s'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'] = ['Publish/unpublish element', 'Publish/unpublish element ID %s'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['show'] = ['Show element', 'Show details of element ID %s'];
 
 /**
  * Misc

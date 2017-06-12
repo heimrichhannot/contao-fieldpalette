@@ -9,121 +9,121 @@
  * @license http://www.gnu.org/licences/lgpl-3.0.html LGPL
  */
 
-$GLOBALS['TL_DCA']['tl_fieldpalette'] = array(
-    'config'      => array(
+$GLOBALS['TL_DCA']['tl_fieldpalette'] = [
+    'config'      => [
         'dataContainer'     => 'Table',
         'ptable'            => '',
         'dynamicPtable'     => true,
         'enableVersioning'  => true,
-        'onload_callback'   => array(
-            'setDateAdded'    => array('HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true),
-            'onload_callback' => array('tl_fieldpalette', 'setReferrerOnSaveAndClose'),
-        ),
-        'sql'               => array(
-            'keys' => array(
+        'onload_callback'   => [
+            'setDateAdded'    => ['HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true],
+            'onload_callback' => ['tl_fieldpalette', 'setReferrerOnSaveAndClose'],
+        ],
+        'sql'               => [
+            'keys' => [
                 'id'                                  => 'primary',
                 'pid,ptable,pfield,published,sorting' => 'index',
-            ),
-        ),
-        'oncreate_callback' => array(
-            array('tl_fieldpalette', 'setTable'),
-        ),
-        'onsubmit_callback' => array(
-            array('tl_fieldpalette', 'updateParentFieldOnSubmit'),
-        ),
-        'oncut_callback'    => array(
-            array('tl_fieldpalette', 'updateParentFieldOnCut'),
-        ),
-        'ondelete_callback' => array(
-            array('tl_fieldpalette', 'updateParentFieldonDelete'),
-        ),
-    ),
-    'list'        => array(
-        'label'      => array(
-            'fields' => array('pid', 'ptable', 'pfield'),
+            ],
+        ],
+        'oncreate_callback' => [
+            ['tl_fieldpalette', 'setTable'],
+        ],
+        'onsubmit_callback' => [
+            ['tl_fieldpalette', 'updateParentFieldOnSubmit'],
+        ],
+        'oncut_callback'    => [
+            ['tl_fieldpalette', 'updateParentFieldOnCut'],
+        ],
+        'ondelete_callback' => [
+            ['tl_fieldpalette', 'updateParentFieldonDelete'],
+        ],
+    ],
+    'list'        => [
+        'label'      => [
+            'fields' => ['pid', 'ptable', 'pfield'],
             'format' => '%s <span style="color:#b3b3b3;padding-left:3px">[%s:%s]</span>',
-        ),
-        'operations' => array(
-            'edit'   => array(
+        ],
+        'operations' => [
+            'edit'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_fieldpalette']['edit'],
                 'href'  => 'act=edit',
                 'icon'  => 'edit.gif',
-            ),
-            'delete' => array(
+            ],
+            'delete' => [
                 'label'      => &$GLOBALS['TL_LANG']['tl_fieldpalette']['delete'],
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
                 'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
                                 . '\'))return false;FieldPaletteBackend.deleteFieldPaletteEntry(this,%s);return false;"',
-            ),
-            'toggle' => array(
+            ],
+            'toggle' => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'],
                 'icon'            => 'visible.gif',
                 'attributes'      => 'onclick="Backend.getScrollOffset();return AjaxRequest.toggleVisibility(this,%s)"',
-                'button_callback' => array('tl_fieldpalette', 'toggleIcon'),
-            ),
-            'show'   => array(
+                'button_callback' => ['tl_fieldpalette', 'toggleIcon'],
+            ],
+            'show'   => [
                 'label' => &$GLOBALS['TL_LANG']['tl_fieldpalette']['show'],
                 'href'  => 'act=show',
                 'icon'  => 'show.gif',
-            ),
-        ),
-    ),
-    'palettes'    => array(
-        '__selector__' => array('published'),
-    ),
-    'subpalettes' => array(
+            ],
+        ],
+    ],
+    'palettes'    => [
+        '__selector__' => ['published'],
+    ],
+    'subpalettes' => [
         'published' => 'start,stop',
-    ),
-    'fields'      => array(
-        'id'        => array(
+    ],
+    'fields'      => [
+        'id'        => [
             'sql' => "int(10) unsigned NOT NULL auto_increment",
-        ),
-        'pid'       => array(
+        ],
+        'pid'       => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'ptable'    => array(
+        ],
+        'ptable'    => [
             'sql' => "varchar(64) NOT NULL default ''",
-        ),
-        'pfield'    => array(
+        ],
+        'pfield'    => [
             'sql' => "varchar(255) NOT NULL default ''",
-        ),
-        'sorting'   => array(
+        ],
+        'sorting'   => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'tstamp'    => array(
+        ],
+        'tstamp'    => [
             'sql' => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'dateAdded' => array(
+        ],
+        'dateAdded' => [
             'label'   => &$GLOBALS['TL_LANG']['MSC']['dateAdded'],
             'sorting' => true,
             'flag'    => 6,
-            'eval'    => array('rgxp' => 'datim', 'doNotCopy' => true),
+            'eval'    => ['rgxp' => 'datim', 'doNotCopy' => true],
             'sql'     => "int(10) unsigned NOT NULL default '0'",
-        ),
-        'published' => array(
+        ],
+        'published' => [
             'exclude'   => true,
             'label'     => &$GLOBALS['TL_LANG']['tl_fieldpalette']['published'],
             'inputType' => 'checkbox',
-            'eval'      => array('submitOnChange' => true, 'doNotCopy' => true),
+            'eval'      => ['submitOnChange' => true, 'doNotCopy' => true],
             'sql'       => "char(1) NOT NULL default ''",
-        ),
-        'start'     => array(
+        ],
+        'start'     => [
             'exclude'   => true,
             'label'     => &$GLOBALS['TL_LANG']['tl_fieldpalette']['start'],
             'inputType' => 'text',
-            'eval'      => array('rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'),
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''",
-        ),
-        'stop'      => array(
+        ],
+        'stop'      => [
             'exclude'   => true,
             'label'     => &$GLOBALS['TL_LANG']['tl_fieldpalette']['stop'],
             'inputType' => 'text',
-            'eval'      => array('rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'),
+            'eval'      => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
             'sql'       => "varchar(10) NOT NULL default ''",
-        ),
-    ),
-);
+        ],
+    ],
+];
 
 class tl_fieldpalette extends Backend
 {
@@ -176,7 +176,7 @@ class tl_fieldpalette extends Backend
             {
                 if (!isset($session[$key][TL_REFERER_ID]))
                 {
-                    $session[$key][TL_REFERER_ID] = array();
+                    $session[$key][TL_REFERER_ID] = [];
                 }
 
                 $session[$key][TL_REFERER_ID]         = array_merge($session[$key][TL_REFERER_ID], $session[$key][$ref]);
@@ -391,7 +391,7 @@ class tl_fieldpalette extends Backend
             $objCurrentRecord->pfield
         );
 
-        $varValue = array();
+        $varValue = [];
 
         if ($objItems !== null)
         {

@@ -14,7 +14,7 @@ namespace HeimrichHannot\FieldPalette;
 
 abstract class FieldPaletteRegistry
 {
-	private static $arrRegistry = array();
+	private static $arrRegistry = [];
 
 	public static function set($strTable, $strField, $arrDca)
 	{

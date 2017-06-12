@@ -12,9 +12,9 @@
 /**
  * Fields
  */
-$GLOBALS['TL_LANG']['tl_fieldpalette']['published'] = array('Element veröffentlichen', 'Das Element auf der Webseite anzeigen.');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['start'] = array('Anzeigen ab', 'Das Element erst ab diesem Tag auf der Webseite anzeigen.');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['stop'] = array('Anzeigen bis', 'Den Element nur bis zu diesem Tag auf der Webseite anzeigen.');
+$GLOBALS['TL_LANG']['tl_fieldpalette']['published'] = ['Element veröffentlichen', 'Das Element auf der Webseite anzeigen.'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['start'] = ['Anzeigen ab', 'Das Element erst ab diesem Tag auf der Webseite anzeigen.'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['stop'] = ['Anzeigen bis', 'Den Element nur bis zu diesem Tag auf der Webseite anzeigen.'];
 
 /**
  * Legends
@@ -24,12 +24,12 @@ $GLOBALS['TL_LANG']['tl_fieldpalette']['published_legend'] = 'Veröffentlichung'
 /**
  * Buttons
  */
-$GLOBALS['TL_LANG']['tl_fieldpalette']['new'] = array('Neues Element','Neues Element erstellen');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['edit']	= array('Element bearbeiten','Element ID %s bearbeiten');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['copy'] = array('Element duplizieren','Element ID %s duplizieren');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['delete']= array('Element löschen','Element ID %s löschen');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'] = array('Element veröffentlichen/unveröffentlichen','Element ID %s veröffentlichen/unveröffentlichen');
-$GLOBALS['TL_LANG']['tl_fieldpalette']['show'] = array('Element anzeigen','Details des Elements ID %s anzeigen');
+$GLOBALS['TL_LANG']['tl_fieldpalette']['new'] = ['Neues Element', 'Neues Element erstellen'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['edit']	= ['Element bearbeiten', 'Element ID %s bearbeiten'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['copy'] = ['Element duplizieren', 'Element ID %s duplizieren'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['delete']= ['Element löschen', 'Element ID %s löschen'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'] = ['Element veröffentlichen/unveröffentlichen', 'Element ID %s veröffentlichen/unveröffentlichen'];
+$GLOBALS['TL_LANG']['tl_fieldpalette']['show'] = ['Element anzeigen', 'Details des Elements ID %s anzeigen'];
 
 /**
  * Misc
