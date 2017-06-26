@@ -38,7 +38,7 @@ $GLOBALS['TL_MODELS']['tl_fieldpalette'] = 'HeimrichHannot\FieldPalette\FieldPal
  */
 if (TL_MODE == 'BE')
 {
-    $strBasePath = version_compare(VERSION, '4.0', '<') ? 'composer/vendor/heimrichhannot' : 'assets';
+    $strBasePath = version_compare(VERSION, '4.0', '<') ? 'assets/components' : 'assets';
 
     $GLOBALS['TL_JAVASCRIPT']['datatables-i18n']       =
         $strBasePath . '/datatables-additional/datatables-i18n/datatables-i18n.min.js';
