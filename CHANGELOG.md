@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.8] - 2017-06-27
+
+### Fixed
+- array check in FieldPalette.php
+
 ## [1.3.7] - 2017-06-26
 
 ### Fixed
