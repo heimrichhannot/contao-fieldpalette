@@ -56,13 +56,13 @@ class FieldPalette
     public static function loadDynamicPaletteByParentTable($strAct, $strTable, $strParentTable, &$dc)
     {
         $strRootTable = '';
-        $varPalette   = '';
+        $varPalette   = [];
 
         switch ($strAct)
         {
             case 'create':
                 $strParentTable = FieldPalette::getParentTableFromRequest();
-                $strRootTable = $strParentTable;
+                $strRootTable   = $strParentTable;
 
                 // determine root table from parent entity tree, if requested parent table = tl_fieldpalette -> nested fieldpalette
                 if ($strParentTable == \Config::get('fieldpalette_table') && $intPid = \Input::get('pid'))
@@ -102,13 +102,11 @@ class FieldPalette
 
                     if (class_exists('\Contao\StringUtil'))
                     {
-                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] =
-                            \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
                     else
                     {
-                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] =
-                            \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
+                        $arrSession['popupReferer'][TL_REFERER_ID]['current'] = \StringUtil::decodeEntities(rawurldecode(\Input::get('popupReferer')));
                     }
 
                     \Session::getInstance()->setData($arrSession);
@@ -129,7 +127,7 @@ class FieldPalette
     {
         $arrExtract = [];
 
-        if(!is_array($arrFields))
+        if (!is_array($arrFields))
         {
             return $arrExtract;
         }
@@ -154,8 +152,9 @@ class FieldPalette
     {
         $strParentTable = static::getParentTableFromRequest();
 
-        list($varPalette, $strRootTable, $strParentTable) =
-            FieldPalette::loadDynamicPaletteByParentTable(\Input::get('act'), $strTable, $strParentTable, $dc);
+        list(
+            $varPalette, $strRootTable, $strParentTable
+            ) = FieldPalette::loadDynamicPaletteByParentTable(\Input::get('act'), $strTable, $strParentTable, $dc);
 
         if (!is_array($dc['fields']) || $strParentTable === null || $varPalette === null)
         {
@@ -390,8 +389,7 @@ class FieldPalette
         }
 
         // replace tl_fieldpalette with custom config
-        $arrData                     =
-            @array_replace_recursive($arrDefaults, $arrCustom); // supress warning, as long as references may exist in both arrays
+        $arrData                     = @array_replace_recursive($arrDefaults, $arrCustom); // supress warning, as long as references may exist in both arrays
         $arrData['config']['ptable'] = $strParentTable;
 
         if ($arrData['config']['hidePublished'])
@@ -409,11 +407,11 @@ class FieldPalette
         // Include all excluded fields which are allowed for the current user
         if ($arrData['fields'])
         {
-            foreach ($arrData['fields'] as $k=>$v)
+            foreach ($arrData['fields'] as $k => $v)
             {
                 if ($v['exclude'])
                 {
-                    if (\BackendUser::getInstance()->hasAccess(\Config::get('fieldpalette_table').'::'.$k, 'alexf'))
+                    if (\BackendUser::getInstance()->hasAccess(\Config::get('fieldpalette_table') . '::' . $k, 'alexf'))
                     {
                         if (\Config::get('fieldpalette_table') == 'tl_user_group')
                         {
