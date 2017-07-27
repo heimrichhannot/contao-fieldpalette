@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.10] - 2017-07-27
+
+### Fixed
+- provide all available fieldpalette fields within `tl_user_group` to provide proper permission handling
+
 ## [1.3.9] - 2017-07-18
 
 ### Fixed

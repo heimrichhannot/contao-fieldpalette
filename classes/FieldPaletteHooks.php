@@ -81,8 +81,8 @@ class FieldPaletteHooks extends \Controller
 
         $dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
 
-        // dca extractor does not provide any entity context
-        if (\Input::get('update') == 'database' && $strTable != \Config::get('fieldpalette_table'))
+        // dca extractor does not provide any entity context, show all fieldpalette fields within tl_user_group
+        if ((\Input::get('update') == 'database' || \Input::get('do') == 'group') && $strTable != \Config::get('fieldpalette_table'))
         {
             $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
         }
