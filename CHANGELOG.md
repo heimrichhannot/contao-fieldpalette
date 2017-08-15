@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.11] - 2017-08-15
+
+### Fixed
+- contao 4 compatibility, add extra field palette fields
+
 ## [1.3.10] - 2017-07-27
 
 ### Fixed
