@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.12] - 2017-08-16
+
+### Fixed
+- contao 4 compatibility, removed 'main.php' from button link if contao version > 4
+
 ## [1.3.11] - 2017-08-15
 
 ### Fixed

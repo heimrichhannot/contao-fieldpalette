@@ -203,7 +203,7 @@ class FieldPaletteButton
 
 	protected function init()
 	{
-		$this->arrOptions['base'] = 'contao/main.php';
+        	$this->arrOptions['base'] = version_compare(VERSION, '4.0', '<') ? 'contao/main.php' : 'contao';
 	}
 
 	/**

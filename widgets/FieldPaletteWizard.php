@@ -358,7 +358,7 @@ class FieldPaletteWizard extends \Widget
         // Sort elements
         if (!$this->arrDca['config']['notSortable'])
         {
-            $href = 'contao/main.php';
+            $href  = version_compare(VERSION, '4.0', '<') ? 'contao/main.php' : 'contao';;
             $href .= '?do=' . \Input::get('do');
             $href .= '&amp;table=' . \Config::get('fieldpalette_table');
             $href .= '&amp;id=' . $objRow->id;
