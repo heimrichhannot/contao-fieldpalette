@@ -38,6 +38,4 @@ class FieldPaletteDcaExtractor extends \DcaExtractor
         // prevent caching for fieldpalette
         $this->createExtract();
     }
-
-
 }

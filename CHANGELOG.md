@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.13] - 2017-08-18
+
+### Fixed
+- contao 4 dca-extractor handling for `tl_fieldpalette`
+
 ## [1.3.12] - 2017-08-16
 
 ### Fixed

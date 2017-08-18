@@ -74,7 +74,7 @@ class FieldPaletteHooks extends \Controller
      */
     public function loadDataContainerHook($strTable)
     {
-        if($strTable !== \Config::get('fieldpalette_table'))
+        if ($strTable !== \Config::get('fieldpalette_table'))
         {
             \Controller::loadDataContainer(\Config::get('fieldpalette_table'));
         }
@@ -91,7 +91,7 @@ class FieldPaletteHooks extends \Controller
         }
         else
         {
-            if (preg_match('$/(contao/install|install\.php)$', \Environment::get('request')) && $strTable != \Config::get('fieldpalette_table'))
+            if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request')) && $strTable != \Config::get('fieldpalette_table'))
             {
                 $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
             }
@@ -99,8 +99,6 @@ class FieldPaletteHooks extends \Controller
 
         FieldPalette::registerFieldPalette($dc, $strTable);
     }
-
-
 
 
     /**
@@ -113,6 +111,15 @@ class FieldPaletteHooks extends \Controller
      */
     public function sqlGetFromDcaHook($arrDCASqlExtract)
     {
+        // in contao 4 we have to load the DCA for all table before we extract tl_fieldpalette fields
+        if (version_compare(VERSION, '4.0', '>='))
+        {
+            foreach ($arrDCASqlExtract as $strTable => $extract)
+            {
+                \Controller::loadDataContainer($strTable);
+            }
+        }
+
         $objExtract = new FieldPaletteDcaExtractor(\Config::get('fieldpalette_table'));
 
         if ($objExtract->isDbTable())
