@@ -146,12 +146,12 @@ class tl_fieldpalette extends Backend
 
     public function setReferrerOnSaveAndClose(\DataContainer $dc)
     {
-        if(!$_POST['saveNclose'])
+        if (!isset($_POST['saveNclose']))
         {
             return;
         }
 
-        if (TL_SCRIPT == 'contao/main.php')
+        if (preg_match('/^contao/', TL_SCRIPT))
         {
             $key = \Input::get('popup') ? 'popupReferer' : 'referer';
         }
@@ -190,7 +190,7 @@ class tl_fieldpalette extends Backend
             $strUrl = substr(\Environment::get('requestUri'), strlen(TL_PATH) + 1);
 
             $session[$key][TL_REFERER_ID]['current'] = $strUrl;
-            $session[$key][TL_REFERER_ID]['last'] = $strUrl;
+            $session[$key][TL_REFERER_ID]['last']    = $strUrl;
 
             \Session::getInstance()->setData($session);
         }
