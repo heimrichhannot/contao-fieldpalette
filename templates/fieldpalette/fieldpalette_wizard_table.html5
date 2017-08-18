@@ -5,6 +5,7 @@
 	</div>
 
 	<?= $this->listView; ?>
+
 	<?php if(is_array($this->value)): ?>
 		<?php foreach($this->value as $value): ?>
 			<input type="hidden" name="<?= $this->strName; ?>[]" value="<?= specialchars($value); ?>">

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.14] - 2017-08-18
+
+### Fixed
+- contao 4 fieldpalette javascript compatibility
+
 ## [1.3.13] - 2017-08-18
 
 ### Fixed
