@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.16] - 2017-08-18
+
+### Added
+- `FieldpaletteModel::findPublishedByPidsAndTableAndField`
+
 ## [1.3.15] - 2017-08-18
 
 ### Fixed

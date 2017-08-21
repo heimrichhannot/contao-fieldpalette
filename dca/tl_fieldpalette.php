@@ -15,9 +15,10 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = [
         'ptable'            => '',
         'dynamicPtable'     => true,
         'enableVersioning'  => true,
+        'notCopyable'       => true,
         'onload_callback'   => [
-            'setDateAdded'    => ['HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true],
-            'onload_callback' => ['tl_fieldpalette', 'setReferrerOnSaveAndClose'],
+            'setDateAdded'              => ['HeimrichHannot\HastePlus\Utilities', 'setDateAdded', true],
+            'setReferrerOnSaveAndClose' => ['tl_fieldpalette', 'setReferrerOnSaveAndClose'],
         ],
         'sql'               => [
             'keys' => [
