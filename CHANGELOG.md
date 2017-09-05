@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.17] - 2017-09-05
+
+### Fix
+- Database updates not showing up in Contao 3 Install tool
+
 ## [1.3.16] - 2017-08-18
 
 ### Added
