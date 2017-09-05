@@ -89,12 +89,9 @@ class FieldPaletteHooks extends \Controller
                 $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
             }
         }
-        else
+        if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request')) && $strTable != \Config::get('fieldpalette_table'))
         {
-            if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request')) && $strTable != \Config::get('fieldpalette_table'))
-            {
-                $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
-            }
+            $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
         }
 
         FieldPalette::registerFieldPalette($dc, $strTable);
