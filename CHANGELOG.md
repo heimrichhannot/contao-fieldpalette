@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.18] - 2017-09-05
+
+### Added
+- `FieldpaletteModel::findPublishedByIds` added `columns` and `values` arguments that will be merged with statement
+- `FieldpaletteModel::findPublishedByPidAndTableAndField` added `columns` and `values` arguments that will be merged with statement
+- `FieldpaletteModel::findPublishedByPidsAndTableAndField` added `columns` and `values` arguments that will be merged with statement
+- `FieldpaletteModel::findByPidAndTableAndField` added `columns` and `values` arguments that will be merged with statement
+
 ## [1.3.17] - 2017-09-05
 
 ### Fix
