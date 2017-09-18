@@ -49,7 +49,7 @@ class FieldPaletteModel extends \Model
      * @param array $columns Additional clauses columns
      * @param array $values Additional clauses values
      *
-     * @return \Model\Collection|\ContentModel|null A collection of models or null if there are no fieldpalette elements
+     * @return \Model\Collection|FieldPaletteModel|null A collection of models or null if there are no fieldpalette elements
      */
     public static function findPublishedByIds(array $arrIds = [], array $arrOptions = [], array $columns = [], array $values = null)
     {
@@ -85,7 +85,7 @@ class FieldPaletteModel extends \Model
      * @param array $columns Additional clauses columns
      * @param array $values Additional clauses values
      *
-     * @return \Model\Collection|\ContentModel|null A collection of models or null if there are no fieldpalette elements
+     * @return \Model\Collection|FieldPaletteModel|null A collection of models or null if there are no fieldpalette elements
      */
     public static function findPublishedByPidAndTableAndField($intPid, $strParentTable, $strParentField, array $arrOptions = [], array $columns = [], array $values = [])
     {
@@ -118,7 +118,7 @@ class FieldPaletteModel extends \Model
      * @param array $columns Additional clauses columns
      * @param array $values Additional clauses values
      *
-     * @return \Model\Collection|\ContentModel|null A collection of models or null if there are no fieldpalette elements
+     * @return \Model\Collection|FieldPaletteModel|null A collection of models or null if there are no fieldpalette elements
      */
     public static function findPublishedByPidsAndTableAndField($arrPids, $strParentTable, $strParentField, array $arrOptions = [], array $columns = [], array $values = [])
     {
@@ -158,7 +158,7 @@ class FieldPaletteModel extends \Model
      * @param array $columns Additional clauses columns
      * @param array $values Additional clauses values
      *
-     * @return \Model\Collection|\ContentModel|null A collection of models or null if there are no fieldpalette elements
+     * @return \Model\Collection|FieldPaletteModel|null A collection of models or null if there are no fieldpalette elements
      */
     public static function findByPidAndTableAndField($intPid, $strParentTable, $strParentField, array $arrOptions = [], array $columns = [], array $values = [])
     {
