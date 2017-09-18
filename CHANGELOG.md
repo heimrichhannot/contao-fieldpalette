@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.3.19] - 2017-09-05
+
+### Fixed
+- php Documentation for `FieldpaletteModel` `@return` value
+
 ## [1.3.18] - 2017-09-05
 
 ### Added
