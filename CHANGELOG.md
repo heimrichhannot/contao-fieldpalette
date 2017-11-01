@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2017-11-01
+
+### Added
+- Support for custom tables (instead of `tl_fieldpalette`), for more details check the README.
+
 ## [1.3.19] - 2017-09-05
 
 ### Fixed

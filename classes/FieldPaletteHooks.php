@@ -15,24 +15,21 @@ namespace HeimrichHannot\FieldPalette;
 class FieldPaletteHooks extends \Controller
 {
 
-    protected static $arrSkipTables   = ['tl_formdata'];
+    protected static $arrSkipTables = ['tl_formdata'];
     protected static $intMaximumDepth = 10;
     protected static $intCurrentDepth = 0;
 
     public function executePostActionsHook($strAction, \DataContainer $dc)
     {
-        if ($strAction == FieldPalette::$strFieldpaletteRefreshAction)
-        {
-            if (\Input::post('field'))
-            {
+        if ($strAction == FieldPalette::$strFieldpaletteRefreshAction) {
+            if (\Input::post('field')) {
                 \Controller::loadDataContainer($dc->table);
 
                 $strName  = \Input::post('field');
                 $arrField = $GLOBALS['TL_DCA'][$dc->table]['fields'][$strName];
 
                 // Die if the field does not exist
-                if (!is_array($arrField))
-                {
+                if (!is_array($arrField)) {
                     header('HTTP/1.1 400 Bad Request');
                     die('Bad Request');
                 }
@@ -41,8 +38,7 @@ class FieldPaletteHooks extends \Controller
                 $strClass = $GLOBALS['BE_FFL'][$arrField['inputType']];
 
                 // Die if the class is not defined or inputType is not fieldpalette
-                if ($arrField['inputType'] != 'fieldpalette' || !class_exists($strClass))
-                {
+                if ($arrField['inputType'] != 'fieldpalette' || !class_exists($strClass)) {
                     header('HTTP/1.1 400 Bad Request');
                     die('Bad Request');
                 }
@@ -74,27 +70,34 @@ class FieldPaletteHooks extends \Controller
      */
     public function loadDataContainerHook($strTable)
     {
-        if ($strTable !== \Config::get('fieldpalette_table'))
-        {
-            \Controller::loadDataContainer(\Config::get('fieldpalette_table'));
-        }
-
-        $dc = &$GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')];
-
         // dca extractor does not provide any entity context, show all fieldpalette fields within tl_user_group
-        if (version_compare(VERSION, '4.0', '<'))
-        {
-            if ((\Input::get('update') == 'database' || \Input::get('do') == 'group') && $strTable != \Config::get('fieldpalette_table'))
-            {
-                $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
+        if (version_compare(VERSION, '4.0', '<')) {
+            if ((\Input::get('update') == 'database' || \Input::get('do') == 'group')) {
+                $this->extractTableFields($strTable);
             }
         }
-        if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request')) && $strTable != \Config::get('fieldpalette_table'))
-        {
-            $dc['fields'] = array_merge($dc['fields'], FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']));
+
+        if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request'))) {
+            $this->extractTableFields($strTable);
         }
 
-        FieldPalette::registerFieldPalette($dc, $strTable);
+        FieldPalette::registerFieldPalette($strTable);
+    }
+
+    /**
+     * Extract table fields sql
+     * @param string $strTable The field palette table name
+     */
+    protected function extractTableFields($strTable)
+    {
+        $palettes = FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']);
+
+        foreach ($palettes as $paletteTable => $fields) {
+            $GLOBALS['TL_DCA'][$paletteTable]['fields'] = array_merge(
+                is_array($GLOBALS['TL_DCA'][$paletteTable]['fields']) ? $GLOBALS['TL_DCA'][$paletteTable]['fields'] : [],
+                is_array($fields) ? $fields : []
+            );
+        }
     }
 
 
@@ -109,18 +112,15 @@ class FieldPaletteHooks extends \Controller
     public function sqlGetFromDcaHook($arrDCASqlExtract)
     {
         // in contao 4 we have to load the DCA for all table before we extract tl_fieldpalette fields
-        if (version_compare(VERSION, '4.0', '>='))
-        {
-            foreach ($arrDCASqlExtract as $strTable => $extract)
-            {
+        if (version_compare(VERSION, '4.0', '>=')) {
+            foreach ($arrDCASqlExtract as $strTable => $extract) {
                 \Controller::loadDataContainer($strTable);
             }
         }
 
         $objExtract = new FieldPaletteDcaExtractor(\Config::get('fieldpalette_table'));
 
-        if ($objExtract->isDbTable())
-        {
+        if ($objExtract->isDbTable()) {
             $arrDCASqlExtract[\Config::get('fieldpalette_table')] = $objExtract->getDbInstallerArray();
         }
 

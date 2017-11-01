@@ -42,6 +42,28 @@ class FieldPaletteModel extends \Model
 
 
     /**
+     * Use this model with a custom fieldpalette table
+     * @param $strTable Fieldpalette
+     * @return static Current instance
+     */
+    public static function setTable($strTable)
+    {
+        static::$strTable = $strTable;
+
+        if (!$GLOBALS['TL_DCA'][$strTable]['config']['fieldpalette'] || !\Contao\Database::getInstance()->tableExists($strTable)) {
+            static::$strTable = 'tl_fieldpalette';
+            return new static();
+        }
+
+        // support custom fieldpalette entities without having its own model
+        if (!isset($GLOBALS['TL_MODELS'][$strTable])) {
+            $GLOBALS['TL_MODELS'][$strTable] = __CLASS__;
+        }
+
+        return new static();
+    }
+
+    /**
      * Find all published fieldpalette elements by their ids
      *
      * @param array $arrIds An array of fielpalette ids

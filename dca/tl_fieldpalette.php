@@ -14,6 +14,7 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = [
         'dataContainer'     => 'Table',
         'ptable'            => '',
         'dynamicPtable'     => true,
+        'fieldpalette'      => true, // required to grant access for back end modules
         'enableVersioning'  => true,
         'notCopyable'       => true,
         'onload_callback'   => [
@@ -55,7 +56,7 @@ $GLOBALS['TL_DCA']['tl_fieldpalette'] = [
                 'href'       => 'act=delete',
                 'icon'       => 'delete.gif',
                 'attributes' => 'onclick="if(!confirm(\'' . $GLOBALS['TL_LANG']['MSC']['deleteConfirm']
-                                . '\'))return false;FieldPaletteBackend.deleteFieldPaletteEntry(this,%s);return false;"',
+                    . '\'))return false;FieldPaletteBackend.deleteFieldPaletteEntry(this,%s);return false;"',
             ],
             'toggle' => [
                 'label'           => &$GLOBALS['TL_LANG']['tl_fieldpalette']['toggle'],
@@ -147,44 +148,35 @@ class tl_fieldpalette extends Backend
 
     public function setReferrerOnSaveAndClose(\DataContainer $dc)
     {
-        if (!isset($_POST['saveNclose']))
-        {
+        if (!isset($_POST['saveNclose'])) {
             return;
         }
 
-        if (preg_match('/^contao/', TL_SCRIPT))
-        {
+        if (preg_match('/^contao/', TL_SCRIPT)) {
             $key = \Input::get('popup') ? 'popupReferer' : 'referer';
         }
 
-        if ($key !== null)
-        {
+        if ($key !== null) {
             $session = \Session::getInstance()->getData();
 
-            if (!is_array($session[$key]) || !is_array($session[$key][TL_REFERER_ID]))
-            {
+            if (!is_array($session[$key]) || !is_array($session[$key][TL_REFERER_ID])) {
                 $session[$key][TL_REFERER_ID]['last'] = '';
             }
 
-            while (count($session[$key]) >= 25)
-            {
+            while (count($session[$key]) >= 25) {
                 array_shift($session[$key]);
             }
 
             $ref = \Input::get('ref');
 
-            if ($ref != '' && isset($session[$key][$ref]))
-            {
-                if (!isset($session[$key][TL_REFERER_ID]))
-                {
+            if ($ref != '' && isset($session[$key][$ref])) {
+                if (!isset($session[$key][TL_REFERER_ID])) {
                     $session[$key][TL_REFERER_ID] = [];
                 }
 
                 $session[$key][TL_REFERER_ID]         = array_merge($session[$key][TL_REFERER_ID], $session[$key][$ref]);
                 $session[$key][TL_REFERER_ID]['last'] = $session[$key][$ref]['current'];
-            }
-            elseif (count($session[$key]) > 1)
-            {
+            } elseif (count($session[$key]) > 1) {
                 $session[$key][TL_REFERER_ID] = end($session[$key]);
             }
 
@@ -199,17 +191,22 @@ class tl_fieldpalette extends Backend
 
     public function setTable($strTable, $insertID, $arrSet, DataContainer $dc)
     {
+        \Controller::loadDataContainer($strTable);
+
+        if (!$GLOBALS['TL_DCA'][$strTable]['config']['fieldpalette']) {
+            return;
+        }
+
+
         $strFieldPalette = \HeimrichHannot\FieldPalette\FieldPalette::getPaletteFromRequest();
 
-        $objModel = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($insertID);
+        $objModel        = \HeimrichHannot\FieldPalette\FieldPaletteModel::setTable($strTable)->findByPk($insertID);
 
         // if are within nested fieldpalettes set parent item tstamp
-        if ($arrSet['ptable'] == 'tl_fieldpalette')
-        {
+        if ($arrSet['ptable'] == 'tl_fieldpalette') {
             $objParent = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($objModel->pid);
 
-            if ($objParent !== null)
-            {
+            if ($objParent !== null) {
                 $objParent->tstamp = time();
                 $objParent->save();
             }
@@ -223,7 +220,7 @@ class tl_fieldpalette extends Backend
     /**
      * Return the "toggle visibility" button
      *
-     * @param array  $row
+     * @param array $row
      * @param string $href
      * @param string $label
      * @param string $title
@@ -234,23 +231,20 @@ class tl_fieldpalette extends Backend
      */
     public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
     {
-        if (strlen(Input::get('tid')))
-        {
+        if (strlen(Input::get('tid'))) {
             $this->toggleVisibility(Input::get('tid'), (Input::get('state') == 1), (@func_get_arg(12) ?: null));
             $this->redirect($this->getReferer());
         }
 
         // Check permissions AFTER checking the tid, so hacking attempts are logged
-        if (!$this->User->hasAccess(\Config::get('fielpalette_table') . '::published', 'alexf'))
-        {
+        if (!$this->User->hasAccess(\Config::get('fielpalette_table') . '::published', 'alexf')) {
             return '';
         }
 
         $href = \Haste\Util\Url::addQueryString('tid=' . $row['id'], $href);
         $href = \Haste\Util\Url::addQueryString('state=' . ($row['published'] ? '' : 1), $href);
 
-        if (!$row['published'])
-        {
+        if (!$row['published']) {
             $icon = 'invisible.gif';
         }
 
@@ -266,8 +260,8 @@ class tl_fieldpalette extends Backend
     /**
      * Disable/enable a user group
      *
-     * @param integer       $intId
-     * @param boolean       $blnVisible
+     * @param integer $intId
+     * @param boolean $blnVisible
      * @param DataContainer $dc
      */
     public function toggleVisibility($intId, $blnVisible, DataContainer $dc = null)
@@ -276,35 +270,28 @@ class tl_fieldpalette extends Backend
         Input::setGet('id', $intId);
         Input::setGet('act', 'toggle');
 
-        if ($dc)
-        {
+        if ($dc) {
             $dc->id = $intId; // see #8043
         }
 
         $this->checkPermission();
 
         // Check the field access
-        if (!$this->User->hasAccess(\Config::get('fieldpalette_table') . '::published', 'alexf'))
-        {
+        if (!$this->User->hasAccess($dc->table . '::published', 'alexf')) {
             $this->log('Not enough permissions to publish/unpublish fieldpalette item ID "' . $intId . '"', __METHOD__, TL_ERROR);
             $this->redirect('contao/main.php?act=error');
         }
 
-        $objVersions = new Versions(\Config::get('fieldpalette_table'), $intId);
+        $objVersions = new Versions($dc->table, $intId);
         $objVersions->initialize();
 
         // Trigger the save_callback
-        if (is_array($GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')]['fields']['published']['save_callback']))
-        {
-            foreach ($GLOBALS['TL_DCA'][\Config::get('fieldpalette_table')]['fields']['published']['save_callback'] as $callback)
-            {
-                if (is_array($callback))
-                {
+        if (is_array($GLOBALS['TL_DCA'][$dc->table]['fields']['published']['save_callback'])) {
+            foreach ($GLOBALS['TL_DCA'][$dc->table]['fields']['published']['save_callback'] as $callback) {
+                if (is_array($callback)) {
                     $this->import($callback[0]);
                     $blnVisible = $this->{$callback[0]}->{$callback[1]}($blnVisible, ($dc ?: $this));
-                }
-                elseif (is_callable($callback))
-                {
+                } elseif (is_callable($callback)) {
                     $blnVisible = $callback($blnVisible, ($dc ?: $this));
                 }
             }
@@ -312,13 +299,13 @@ class tl_fieldpalette extends Backend
 
         // Update the database
         $this->Database->prepare(
-            "UPDATE " . \Config::get('fieldpalette_table') . " SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?"
+            "UPDATE " . $dc->table . " SET tstamp=" . time() . ", published='" . ($blnVisible ? '1' : '') . "' WHERE id=?"
         )->execute($intId);
 
         $objVersions->create();
         $this->log(
-            'A new version of record "' . \Config::get('fieldpalette_table') . '.id=' . $intId . '" has been created' . $this->getParentEntries(
-                \Config::get('fielpalette_table'),
+            'A new version of record "' . $dc->table . '.id=' . $intId . '" has been created' . $this->getParentEntries(
+                $dc->table,
                 $intId
             ),
             __METHOD__,
@@ -330,8 +317,7 @@ class tl_fieldpalette extends Backend
     {
         $objCurrentRecord = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($dc->id);
 
-        if ($objCurrentRecord === null)
-        {
+        if ($objCurrentRecord === null) {
             return false;
         }
 
@@ -342,8 +328,7 @@ class tl_fieldpalette extends Backend
     {
         $objCurrentRecord = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($dc->id);
 
-        if ($objCurrentRecord === null)
-        {
+        if ($objCurrentRecord === null) {
             return false;
         }
 
@@ -354,8 +339,7 @@ class tl_fieldpalette extends Backend
     {
         $objCurrentRecord = \HeimrichHannot\FieldPalette\FieldPaletteModel::findByPk($dc->id);
 
-        if ($objCurrentRecord === null)
-        {
+        if ($objCurrentRecord === null) {
             return false;
         }
 
@@ -373,16 +357,14 @@ class tl_fieldpalette extends Backend
     {
         $strClass = \Model::getClassFromTable($objCurrentRecord->ptable);
 
-        if (!class_exists($strClass))
-        {
+        if (!class_exists($strClass)) {
             return false;
         }
 
         /** @var \Model $strClass */
         $objParent = $strClass::findByPk($objCurrentRecord->pid);
 
-        if ($objParent === null)
-        {
+        if ($objParent === null) {
             return false;
         }
 
@@ -394,25 +376,21 @@ class tl_fieldpalette extends Backend
 
         $varValue = [];
 
-        if ($objItems !== null)
-        {
+        if ($objItems !== null) {
             $varValue = $objItems->fetchEach('id');
 
             // ondelete_callback support
-            if ($intDelete > 0 && ($key = array_search($intDelete, $varValue)) !== false)
-            {
+            if ($intDelete > 0 && ($key = array_search($intDelete, $varValue)) !== false) {
                 unset($varValue[$key]);
             }
         }
 
-        if (empty($varValue))
-        {
+        if (empty($varValue)) {
             \Controller::loadDataContainer($objCurrentRecord->ptable);
 
             $arrData = $GLOBALS['TL_DCA'][$objCurrentRecord->ptable]['fields'][$objCurrentRecord->pfield];
 
-            if (isset($arrData['sql']))
-            {
+            if (isset($arrData['sql'])) {
                 $varValue = \Widget::getEmptyValueByFieldType($arrData['sql']);
             }
         }
