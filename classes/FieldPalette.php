@@ -73,8 +73,7 @@ class FieldPalette
                 continue;
             }
 
-            if($arrField['fieldpalette']['config']['table'] === null)
-            {
+            if ($arrField['fieldpalette']['config']['table'] === null) {
                 $paletteTable = \Config::get('fieldpalette_table');
             }
 
@@ -103,7 +102,9 @@ class FieldPalette
 
     public static function loadDynamicPaletteByParentTable($strAct, $strTable, $strParentTable)
     {
-        \Controller::loadDataContainer($strTable);
+        if (!isset($GLOBALS['loadDataContainer'][$strTable])) {
+            \Controller::loadDataContainer($strTable);
+        }
 
         $strRootTable = '';
         $varPalette   = [];
@@ -413,15 +414,17 @@ class FieldPalette
         return $arrData;
     }
 
+    /**
+     * Adjust back end module to allow fieldpalette table access
+     * Note: Do never execute \Controller::loadDataContainer() inside this function as no BackendUser is available inside initializeSystem Hook
+     */
     public static function adjustBackendModules()
     {
-        $table = FieldPalette::getTableFromRequest();
+        $table   = FieldPalette::getTableFromRequest();
+        $pTable  = FieldPalette::getParentTableFromRequest();
+        $palette = FieldPalette::getPaletteFromRequest();
 
-        if (!empty($table)) {
-            \Controller::loadDataContainer($table);
-        }
-
-        if (!$GLOBALS['TL_DCA'][$table]['config']['fieldpalette']) {
+        if (empty($table) || empty($pTable) || empty($palette)) {
             return;
         }
 

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.2] - 2017-11-08
+
+### Fixed
+- `Fieldpalette::adjustBackendModules` should not execute `Controller::loadDataContainer()` as there is no `BackendUser` available, that is required for default values of `author` fields inside `tl_news` etc. 
+
 ## [1.4.1] - 2017-11-08
 
 ### Fixed

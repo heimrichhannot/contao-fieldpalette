@@ -36,21 +36,20 @@ $GLOBALS['TL_MODELS']['tl_fieldpalette'] = 'HeimrichHannot\FieldPalette\FieldPal
 /**
  * Assets
  */
-if (TL_MODE == 'BE')
-{
+if (\HeimrichHannot\Haste\Util\Container::isBackend()) {
     $strBasePath = version_compare(VERSION, '4.0', '<') ? 'assets/components' : 'assets';
 
     $GLOBALS['TL_JAVASCRIPT']['datatables-i18n']       =
-        $strBasePath . '/datatables-additional/datatables-i18n/datatables-i18n.min.js';
-    $GLOBALS['TL_JAVASCRIPT']['datatables-core']       = $strBasePath . '/datatables/datatables/media/js/jquery.dataTables.min.js';
+        $strBasePath . '/datatables-additional/datatables-i18n/datatables-i18n.min.js|static';
+    $GLOBALS['TL_JAVASCRIPT']['datatables-core']       = $strBasePath . '/datatables/datatables/media/js/jquery.dataTables.min.js|static';
     $GLOBALS['TL_JAVASCRIPT']['datatables-rowReorder'] =
-        $strBasePath . '/datatables-additional/datatables-RowReorder/js/dataTables.rowReorder.min.js';
+        $strBasePath . '/datatables-additional/datatables-RowReorder/js/dataTables.rowReorder.min.js|static';
 
     $GLOBALS['TL_CSS']['datatables-core']       =
         $strBasePath . '/datatables-additional/datatables.net-dt/css/jquery.dataTables.min.css';
     $GLOBALS['TL_CSS']['datatables-rowReorder'] =
         $strBasePath . '/datatables-additional/datatables-RowReorder/css/rowReorder.dataTables.min.css';
 
-    $GLOBALS['TL_JAVASCRIPT']['fieldpalette-be.js'] = 'system/modules/fieldpalette/assets/js/fieldpalette-be.js' . (TL_MODE == 'BE' ? '' : '|static');
+    $GLOBALS['TL_JAVASCRIPT']['fieldpalette-be.js'] = 'system/modules/fieldpalette/assets/js/fieldpalette-be.min.js|static';
     $GLOBALS['TL_CSS']['fieldpalette-wizard-be']    = 'system/modules/fieldpalette/assets/css/fieldpalette-wizard-be.css';
 }
