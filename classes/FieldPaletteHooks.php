@@ -93,6 +93,11 @@ class FieldPaletteHooks extends \Controller
         $palettes = FieldPalette::extractFieldPaletteFields($strTable, $GLOBALS['TL_DCA'][$strTable]['fields']);
 
         foreach ($palettes as $paletteTable => $fields) {
+
+            if (!$GLOBALS['loadDataContainer'][$paletteTable]) {
+                \Controller::loadDataContainer($paletteTable);
+            }
+
             $GLOBALS['TL_DCA'][$paletteTable]['fields'] = array_merge(
                 is_array($GLOBALS['TL_DCA'][$paletteTable]['fields']) ? $GLOBALS['TL_DCA'][$paletteTable]['fields'] : [],
                 is_array($fields) ? $fields : []

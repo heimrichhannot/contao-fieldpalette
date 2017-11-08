@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.1] - 2017-11-08
+
+### Fixed
+- `FieldPaletteHooks::extractTableFields` when fieldpalette dca is not loaded yet
+
 ## [1.4.0] - 2017-11-01
 
 ### Added
