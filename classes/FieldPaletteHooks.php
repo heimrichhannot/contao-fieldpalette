@@ -94,7 +94,7 @@ class FieldPaletteHooks extends \Controller
 
         foreach ($palettes as $paletteTable => $fields) {
 
-            if (!$GLOBALS['loadDataContainer'][$paletteTable]) {
+            if (!isset($GLOBALS['loadDataContainer'][$paletteTable])) {
                 \Controller::loadDataContainer($paletteTable);
             }
 
