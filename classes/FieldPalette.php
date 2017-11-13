@@ -421,10 +421,8 @@ class FieldPalette
     public static function adjustBackendModules()
     {
         $table   = FieldPalette::getTableFromRequest();
-        $pTable  = FieldPalette::getParentTableFromRequest();
-        $palette = FieldPalette::getPaletteFromRequest();
 
-        if (empty($table) || empty($pTable) || empty($palette)) {
+        if (empty($table)) {
             return;
         }
 

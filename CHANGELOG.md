@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.3] - 2017-11-13
+
+### Fixed
+- fieldpalette is not allowed within `edit` mode for current back end module exception
+
 ## [1.4.2] - 2017-11-08
 
 ### Fixed
