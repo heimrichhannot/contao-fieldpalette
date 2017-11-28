@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.4] - 2017-11-13
+
+### Fixed
+* required to old haste_plus version
+
 ## [1.4.3] - 2017-11-13
 
 ### Fixed
