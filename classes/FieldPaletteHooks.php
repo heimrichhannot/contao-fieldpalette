@@ -77,7 +77,7 @@ class FieldPaletteHooks extends \Controller
             }
         }
 
-        if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request'))) {
+        if (preg_match('/(contao\/install|install\.php)/', \Environment::get('request')) || \Input::get('do') == 'group') {
             $this->extractTableFields($strTable);
         }
 

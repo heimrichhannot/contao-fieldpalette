@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.5] - 2017-11-29
+
+### Fixed
+* user and user group field permisssion in contao 4
+
 ## [1.4.4] - 2017-11-13
 
 ### Fixed
