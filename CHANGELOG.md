@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.6] - 2018-02-29
+
+### Fixed
+* contao 4 backend style
+
 ## [1.4.5] - 2017-11-29
 
 ### Fixed

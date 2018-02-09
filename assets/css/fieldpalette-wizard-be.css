@@ -1,4 +1,4 @@
-.fieldpalette-form-container #tl_buttons{
+.fieldpalette-form-container #tl_buttons {
     display: none;
 }
 
@@ -58,4 +58,12 @@
 
 .fielpalette-wizard .tl_td_content_right {
     text-align: right;
+}
+
+.isContao4 .fielpalette-wizard {
+    margin-top: 14px;
+}
+
+.isContao4 .tl_fieldpalette_wrapper > div {
+    width: 100%;
 }
