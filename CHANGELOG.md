@@ -1,20 +1,25 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.4.6] - 2018-02-29
+## [1.4.7] - 2018-02-15
 
 ### Fixed
-* contao 4 backend style
+- toggleVisibility
+
+## [1.4.6] - 2018-01-29
+
+### Fixed
+- contao 4 backend style
 
 ## [1.4.5] - 2017-11-29
 
 ### Fixed
-* user and user group field permisssion in contao 4
+- user and user group field permisssion in contao 4
 
 ## [1.4.4] - 2017-11-13
 
 ### Fixed
-* required to old haste_plus version
+- required to old haste_plus version
 
 ## [1.4.3] - 2017-11-13
 
