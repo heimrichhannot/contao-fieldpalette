@@ -226,10 +226,11 @@ class tl_fieldpalette extends Backend
      * @param string $title
      * @param string $icon
      * @param string $attributes
+     * @param string $table
      *
      * @return string
      */
-    public function toggleIcon($row, $href, $label, $title, $icon, $attributes)
+    public function toggleIcon($row, $href, $label, $title, $icon, $attributes, $table)
     {
         if (strlen(Input::get('tid'))) {
             $this->toggleVisibility(Input::get('tid'), (Input::get('state') === '1'), (@func_get_arg(12) ?: null));
@@ -237,7 +238,7 @@ class tl_fieldpalette extends Backend
         }
 
         // Check permissions AFTER checking the tid, so hacking attempts are logged
-        if (!$this->User->hasAccess(\Config::get('fielpalette_table') . '::published', 'alexf')) {
+        if (!$this->User->hasAccess($table . '::published', 'alexf')) {
             return '';
         }
 

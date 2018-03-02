@@ -1,12 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.8] - 2018-03-02
+
+### Fixed
+- toggle icon permission check for custom tables 
+
 ## [1.4.7] - 2018-02-15
 
 ### Fixed
 - toggleVisibility
 
-## [1.4.6] - 2018-01-29
+## [1.4.6] - 2018-02-29
 
 ### Fixed
 - contao 4 backend style
