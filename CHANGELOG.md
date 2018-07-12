@@ -1,10 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.4.10] - 2018-07-12
+
+### Fixed
+- Do not die() in `HookListener::executePostActionsHook` if `$field['inputType']` is not `fieldpalette`, otherwise nested field `executePostActions` Hooks wont work anymore (e.g. multicolumneditor) 
+
 ## [1.4.9] - 2018-07-03
 
 ### Fixed
-- correctly size modal window responsive  
+- correctly size modal window responsive 
 
 ## [1.4.8] - 2018-03-02
 

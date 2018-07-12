@@ -39,8 +39,7 @@ class FieldPaletteHooks extends \Controller
 
                 // Die if the class is not defined or inputType is not fieldpalette
                 if ($arrField['inputType'] != 'fieldpalette' || !class_exists($strClass)) {
-                    header('HTTP/1.1 400 Bad Request');
-                    die('Bad Request');
+                    return;
                 }
 
                 $arrData = \Widget::getAttributesFromDca($arrField, $strName, $dc->activeRecord->{$strName}, $strName, $dc->table, $dc);
